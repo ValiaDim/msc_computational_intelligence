@@ -3,7 +3,7 @@ import numpy as np
 
 
 def svm_fun(train, validation, c, kernel):
-    svc = svm.SVC(probability=False, kernel=kernel, C=c, verbose=True)
+    svc = svm.SVC(probability=False, kernel=kernel, C=c, verbose=False)
 
     svc.fit(train['data'], train['labels'])
 

@@ -14,7 +14,7 @@ batches contain exactly 5000 images from each class.
 """
 
 class cifar_dataloader():
-    def __init__(self, i_data_dir, i_percentage_validation, i_preprocess):
+    def __init__(self, i_data_dir, i_percentage_validation, i_preprocess=True, i_reduced_training_dataset=False):
         self.cifar_train = {}
         self.cifar_test = {}
         self.cifar_validation = {}
@@ -22,6 +22,7 @@ class cifar_dataloader():
         self.percentage_validation = i_percentage_validation
         self.data_dir = i_data_dir
         self.preprocess = i_preprocess
+        self.reduced_training_dataset = i_reduced_training_dataset
 
     def preprocess_data(self):
         self.cifar_train['data'] = self.cifar_train['data'].astype(np.float)
@@ -57,6 +58,18 @@ class cifar_dataloader():
         self.cifar_train['data'] = self.cifar_train['data'][validation_length:, :, :, :]
         self.cifar_train['filenames'] = self.cifar_train['filenames'][validation_length:]
         self.cifar_train['labels'] = self.cifar_train['labels'][validation_length:]
+
+    def reduce_dataset(self):
+        training_lenght = 10
+        validation_lenght = int(self.percentage_validation*training_lenght)
+        self.cifar_validation['data'] = self.cifar_validation['data'][:validation_lenght, :, :, :]
+        self.cifar_validation['filenames'] = self.cifar_validation['filenames'][:validation_lenght]
+        self.cifar_validation['labels'] = self.cifar_validation['labels'][:validation_lenght]
+
+        self.cifar_train['data'] = self.cifar_train['data'][:training_lenght, :, :, :]
+        self.cifar_train['filenames'] = self.cifar_train['filenames'][:training_lenght]
+        self.cifar_train['labels'] = self.cifar_train['labels'][:training_lenght]
+
 
     def load_cifar_10_data(self, negatives=False):
         """
@@ -130,6 +143,8 @@ class cifar_dataloader():
         if self.percentage_validation:
             assert (self.percentage_validation <= 1, "Percentage validation needs to be less than 1")
             self.create_validation_set()
+        if self.reduced_training_dataset:
+            self.reduce_dataset()
 
     def get_cifar_10(self):
         self.load_cifar_10_data()
