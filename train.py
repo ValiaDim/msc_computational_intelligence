@@ -1,7 +1,9 @@
 from dataloaders import CIFAR_10
 from models import SVM
+from models import PCA
 from options.train_options import TrainOptions
 from util import util
+
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -16,10 +18,13 @@ def train(opt, training_folder):
     dataloader = CIFAR_10.cifar_dataloader(opt.train_path, opt.validation_percentage, i_preprocess=True,
                                            i_reduced_training_dataset=opt.reduced_training_dataset)
     train, test, validation, label_names = dataloader.get_cifar_10()
-    c_svm = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
-    kernel_svm = ['linear', 'poly', 'rbf', 'sigmoid']
+    # c_svm = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+    # kernel_svm = ['linear', 'poly', 'rbf', 'sigmoid']
+    c_svm = [0.01, 0.1, 1, 10, 100]
+    kernel_svm = ['rbf', 'sigmoid']
     acc_train_svm = {}
     acc_test_svm = {}
+    train, val = PCA.PCA_fun(train, validation)
     for kernel in kernel_svm:
         acc_train_svm[kernel] = []
         acc_test_svm[kernel] = []

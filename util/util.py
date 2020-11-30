@@ -65,7 +65,8 @@ def create_folders_for_training(train_experiment_name):
         if os.path.isdir(os.path.join(root_log, train_experiment_name)):
             existing_folders = glob.glob('{}*'.format(os.path.join(root_log, train_experiment_name)))
             # todo
-            warnings.warn("The experiment name you provided already exists. Saving under {}".format())
+            warnings.warn("The experiment name you provided already exists. Saving under {}".format(os.path.join(root_log, train_experiment_name)))
+            training_dir = os.path.join(root_log, train_experiment_name)
         else:
             training_dir = os.path.join(root_log, train_experiment_name)
         mkdir(training_dir)

@@ -60,7 +60,7 @@ class cifar_dataloader():
         self.cifar_train['labels'] = self.cifar_train['labels'][validation_length:]
 
     def reduce_dataset(self):
-        training_lenght = 10
+        training_lenght = 10000
         validation_lenght = int(self.percentage_validation*training_lenght)
         self.cifar_validation['data'] = self.cifar_validation['data'][:validation_lenght, :, :, :]
         self.cifar_validation['filenames'] = self.cifar_validation['filenames'][:validation_lenght]

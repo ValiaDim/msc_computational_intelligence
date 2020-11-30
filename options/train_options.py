@@ -15,4 +15,5 @@ class TrainOptions(BaseOptions):
                                                                               "set. Default is: 0.2")
         self.parser.add_argument('--train_experiment_name', help="Optionally add the experiment name. This will be the "
                                                                  "folder name under .trainings folder")
+        self.parser.add_argument('--use_PCA', action='store_true', help="Use PCA for dimensionality reduction")
         self.isTrain = True
