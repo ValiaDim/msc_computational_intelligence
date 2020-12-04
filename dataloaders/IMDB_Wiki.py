@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import cv2 as cv
+from tqdm import tqdm
 import os
 
 
@@ -63,7 +64,9 @@ class imdb_wiki_dataloader():
         ages = []
         filenames = []
         iter = 0
-
+        if self.reduced_training_dataset:
+            dataset_length = 1000
+        pbar = tqdm(total=dataset_length, desc='Cropping Face Images')
         for path in data["path"]:
             image_path = os.path.join(root_path, path)
             image = cv.imread(os.path.join(root_path, path))
@@ -78,6 +81,7 @@ class imdb_wiki_dataloader():
                 images.append(cropped_face)
                 ages.append(data["age"][iter])
                 filenames.append(image_path)
+                pbar.update(1)
             # for (x, y, w, h) in faces_rect:
             #     cv.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
             # Display the output

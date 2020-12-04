@@ -7,6 +7,7 @@ from options.train_options import TrainOptions
 from util import util
 
 
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import os
@@ -67,7 +68,7 @@ def train_imdb_wiki(opt, training_folder):
     # validation["data"] = validation_feature
     c_svm = [0.01, 0.1, 1, 10, 100]
     kernel_svm = ['linear', 'poly', 'rbf', 'sigmoid']
-
+    pbar = tqdm(total=len(c_svm) * len(kernel_svm), desc='Grid searching for best svr')
     acc_train_svm = {}
     acc_test_svm = {}
     # train, val = PCA.PCA_fun(train, validation)
@@ -81,6 +82,7 @@ def train_imdb_wiki(opt, training_folder):
             util.logger(log_message, log_folder)
             acc_train_svm[kernel].append(acc1)
             acc_test_svm[kernel].append(acc2)
+            pbar.update(1)
 
     for key in acc_train_svm.keys():
         plt.plot(c_svm, acc_train_svm[key], '.-', color='red')
