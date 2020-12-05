@@ -31,10 +31,10 @@ class trainer():
         self.use_PCA = opt.use_PCA
         self.grid_search = opt.grid_search
 
-    def grid_search(self, c_svm, kernel_svm):
+    def perform_grid_search(self, c_svm, kernel_svm):
         acc_train_svm = {}
         acc_test_svm = {}
-        progress_bar = tqdm(total=len(c_svm) * len(kernel_svm), desc='Grid searching for best svr')
+        progress_bar = tqdm(total=len(c_svm) * len(kernel_svm), desc='Grid searching for best svm')
         for kernel in kernel_svm:
             acc_train_svm[kernel] = []
             acc_test_svm[kernel] = []
@@ -76,7 +76,7 @@ class trainer():
             raise NotImplementedError
             return
         if self.feature_extraction != "off":
-            train_feature, validation_feature = feature_extraction.get_features(self.train_data, self.validation,
+            train_feature, validation_feature = feature_extraction.get_features(self.train_data, self.validation_data,
                                                                                 feature_type=opt.feature_extraction)
             self.train_data["data"] = train_feature
             self.validation_data["data"] = validation_feature
@@ -85,7 +85,7 @@ class trainer():
         if self.grid_search:
             c_svm = [0.01, 0.1, 1, 10, 100]
             kernel_svm = ['linear', 'poly', 'rbf', 'sigmoid']
-            self.grid_search(c_svm, kernel_svm)
+            self.perform_grid_search(c_svm, kernel_svm)
 
 
 def train_CIFAR(opt, training_folder):

@@ -19,6 +19,10 @@ class imdb_wiki_dataloader():
         self.face_cascade = cv.CascadeClassifier('dataloaders/haarcascade_frontalface_default.xml')
 
     def preprocess_data(self):
+        self.imdb_wiki_train['data_non_processed'] = self.imdb_wiki_train['data']
+        self.imdb_wiki_test['data_non_processed'] = self.imdb_wiki_test['data']
+        self.imdb_wiki_validation['data_non_processed'] = self.imdb_wiki_validation['data']
+
         self.imdb_wiki_train['data'] = self.imdb_wiki_train['data'].astype(np.float)
         self.imdb_wiki_test['data'] = self.imdb_wiki_test['data'].astype(np.float)
         self.imdb_wiki_validation['data'] = self.imdb_wiki_validation['data'].astype(np.float)
@@ -66,7 +70,7 @@ class imdb_wiki_dataloader():
         filenames = []
         iter = 0
         if self.reduced_training_dataset:
-            dataset_length = 1000
+            dataset_length = 5000
         else:
             dataset_length = len(data["path"])
         pbar = tqdm(total=dataset_length, desc='Cropping Face Images')

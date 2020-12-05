@@ -25,27 +25,23 @@ class cifar_dataloader():
         self.reduced_training_dataset = i_reduced_training_dataset
 
     def preprocess_data(self):
+        self.cifar_train['data_non_processed'] = self.cifar_train['data']
+        self.cifar_test['data_non_processed'] = self.cifar_test['data']
+        self.cifar_validation['data_non_processed'] = self.cifar_validation['data']
+
         self.cifar_train['data'] = self.cifar_train['data'].astype(np.float)
         self.cifar_test['data'] = self.cifar_test['data'].astype(np.float)
         self.cifar_validation['data'] = self.cifar_validation['data'].astype(np.float)
-        print(self.cifar_train['data'].shape)
-        print(self.cifar_test['data'].shape)
-        print(self.cifar_validation['data'].shape)
 
         self.cifar_train['data'] = np.reshape(self.cifar_train['data'], (self.cifar_train['data'].shape[0], -1))
         self.cifar_test['data'] = np.reshape(self.cifar_test['data'], (self.cifar_test['data'].shape[0], -1))
         self.cifar_validation['data'] = np.reshape(self.cifar_validation['data'], (self.cifar_validation['data'].shape[0], -1))
-        print(self.cifar_train['data'].shape)
-        print(self.cifar_train['data'][0])
 
         # Normalize
         if self.normalize:
             self.cifar_train['data'] = (self.cifar_train['data'] / 255)
             self.cifar_test['data'] = (self.cifar_test['data'] / 255)
             self.cifar_validation['data'] = (self.cifar_validation['data'] / 255)
-
-        print(self.cifar_train['data'].shape)
-        print(self.cifar_train['data'][0])
 
     def create_validation_set(self):
         train_before_length = len(self.cifar_train['filenames'])
@@ -61,7 +57,7 @@ class cifar_dataloader():
         self.cifar_train['labels'] = self.cifar_train['labels'][validation_length:]
 
     def reduce_dataset(self):
-        training_lenght = 10000
+        training_lenght = 5000
         validation_lenght = int(self.percentage_validation*training_lenght)
         self.cifar_validation['data'] = self.cifar_validation['data'][:validation_lenght, :, :, :]
         self.cifar_validation['filenames'] = self.cifar_validation['filenames'][:validation_lenght]
@@ -152,6 +148,10 @@ class cifar_dataloader():
     def get_cifar_10(self):
         self.load_cifar_10_data()
         self.preprocess_data()
+        print("Loaded dataset with sizes:")
+        print("Training: {}".format(self.cifar_train["data"].shape))
+        print("Testing: {}".format(self.cifar_test["data"].shape))
+        print("Validation: {}".format(self.cifar_validation["data"].shape))
         return self.cifar_train, self.cifar_test, self.cifar_validation, self.cifar_label_names
 
 

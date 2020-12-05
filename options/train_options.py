@@ -4,7 +4,7 @@ from .base_options import BaseOptions
 class TrainOptions(BaseOptions):
     def initialize(self):
         BaseOptions.initialize(self)
-        feature_extraction_methods = ["off", "HOG", "CNN"]
+        feature_extraction_methods = ["off", "HOG", "DEX"]
         self.parser.add_argument('--train_path', required=True, help="The root path of dataset")
         self.parser.add_argument('--grid_search', action='store_true', help="Activate grid search for the "
                                                                             "hyperparameter search")

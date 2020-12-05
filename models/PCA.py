@@ -31,7 +31,7 @@ def PCA_fun(train, val, explained_variance=0.95):
         pca.fit(train['data'])
         projected_train['data'] = pca.transform(train['data'])
         projected_val['data'] = pca.transform(train['data'])
-    print("PCA is done. New data shape is {}".format(projected_train['data'].shape))
+    print("PCA is finished, selected explained variance {}. New data shape is {}".format(explained_variance, projected_train['data'].shape))
     return projected_train, projected_val
 
 
