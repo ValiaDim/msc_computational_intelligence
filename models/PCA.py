@@ -13,7 +13,19 @@ def PCA_fun(train, val, explained_variance=0.95):
         plt.xlabel('number of components')
         plt.ylabel('cumulative explained variance')
         plt.show()
-        # todo should let the user pick the components he wants
+        invalid_input = True
+        while invalid_input:
+            components_str = input("Type the number of components you want to keep: ")
+            try:
+                components_int = int(components_str)
+            except ValueError:
+                continue
+            if 0 <= components_int <= train['data'].shape[1]:
+                pca = PCA(n_components=components_int)
+                pca.fit(train['data'])
+                projected_train['data'] = pca.transform(train['data'])
+                projected_val['data'] = pca.transform(val['data'])
+                break
     else:
         pca = PCA(n_components=explained_variance)
         pca.fit(train['data'])
@@ -21,3 +33,17 @@ def PCA_fun(train, val, explained_variance=0.95):
         projected_val['data'] = pca.transform(train['data'])
     print("PCA is done. New data shape is {}".format(projected_train['data'].shape))
     return projected_train, projected_val
+
+
+
+
+
+
+
+
+
+
+
+
+
+
