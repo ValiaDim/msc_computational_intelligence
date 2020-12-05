@@ -67,7 +67,7 @@ def create_folders_for_training(train_experiment_name):
         while True:
             dir_no += 1
             if os.path.isdir(training_dir):
-                training_dir = os.path.join(root_log, train_experiment_name + str(dir_no))
+                training_dir = os.path.join(root_log, train_experiment_name + "_" + str(dir_no))
                 changed_dir_name = True
             else:
                 break

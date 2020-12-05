@@ -30,6 +30,7 @@ class trainer():
         self.feature_extraction = opt.feature_extraction
         self.use_PCA = opt.use_PCA
         self.grid_search = opt.grid_search
+        self.load_raw_images = opt.feature_extraction != "off"
 
     def perform_grid_search(self, c_svm, kernel_svm):
         acc_train_svm = {}
@@ -60,14 +61,17 @@ class trainer():
     def train(self):
         # todo should create a wrapper to remove this if else
         if self.dataset == "CIFAR10":
-            dataloader = CIFAR_10.cifar_dataloader(self.train_path, self.validation_percentage, i_normalize=self.normalize_data,
-                                                   i_reduced_training_dataset=self.reduced_training_dataset)
+            dataloader = CIFAR_10.cifar_dataloader(self.train_path, self.validation_percentage,
+                                                   i_normalize=self.normalize_data,
+                                                   i_reduced_training_dataset=self.reduced_training_dataset,
+                                                   i_raw_images=self.load_raw_images)
             self.train_data, self.test_data, self.validation_data, label_names = dataloader.get_cifar_10()
             self.svm_type = "classification"
         elif self.dataset == "IMDB_WIKI":
             dataloader = IMDB_Wiki.imdb_wiki_dataloader(self.train_path, self.validation_percentage,
                                                         i_normalize=self.normalize_data,
-                                                        i_reduced_training_dataset=self.reduced_training_dataset)
+                                                        i_reduced_training_dataset=self.reduced_training_dataset,
+                                                        i_raw_images=self.load_raw_images)
             self.train_data, self.test_data, self.validation_data = dataloader.get_imdb_wiki()
             self.svm_type = "regression"
 

@@ -14,7 +14,8 @@ batches contain exactly 5000 images from each class.
 """
 
 class cifar_dataloader():
-    def __init__(self, i_data_dir, i_percentage_validation, i_normalize=True, i_reduced_training_dataset=False):
+    def __init__(self, i_data_dir, i_percentage_validation, i_normalize=True, i_reduced_training_dataset=False,
+                 i_raw_images=False):
         self.cifar_train = {}
         self.cifar_test = {}
         self.cifar_validation = {}
@@ -23,12 +24,9 @@ class cifar_dataloader():
         self.data_dir = i_data_dir
         self.normalize = i_normalize
         self.reduced_training_dataset = i_reduced_training_dataset
+        self.raw_images = i_raw_images
 
     def preprocess_data(self):
-        self.cifar_train['data_non_processed'] = self.cifar_train['data']
-        self.cifar_test['data_non_processed'] = self.cifar_test['data']
-        self.cifar_validation['data_non_processed'] = self.cifar_validation['data']
-
         self.cifar_train['data'] = self.cifar_train['data'].astype(np.float)
         self.cifar_test['data'] = self.cifar_test['data'].astype(np.float)
         self.cifar_validation['data'] = self.cifar_validation['data'].astype(np.float)
@@ -147,7 +145,8 @@ class cifar_dataloader():
 
     def get_cifar_10(self):
         self.load_cifar_10_data()
-        self.preprocess_data()
+        if not self.raw_images:
+            self.preprocess_data()
         print("Loaded dataset with sizes:")
         print("Training: {}".format(self.cifar_train["data"].shape))
         print("Testing: {}".format(self.cifar_test["data"].shape))
