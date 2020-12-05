@@ -5,7 +5,17 @@ from sklearn.svm import SVR
 import numpy as np
 
 
-def svm_fun(train, validation, c, kernel):
+def train_svm(train, validation, c, kernel, type):
+    # todo this should be a class
+    if type == "classification":
+        return svm_classifier(train, validation, c, kernel)
+    if type == "regression":
+        return svr_regressor(train, validation, c, kernel) # todo regression has more arguments!
+    else:
+        raise NotImplementedError
+
+
+def svm_classifier(train, validation, c, kernel):
     svc = svm.SVC(probability=False, kernel=kernel, C=c, verbose=False)
 
     svc.fit(train['data'], train['labels'])
@@ -22,7 +32,7 @@ def svm_fun(train, validation, c, kernel):
     return acc_train, acc_validation
 
 
-def svr(train, validation, c, kernel):
+def svr_regressor(train, validation, c, kernel):
     clf = SVR(kernel=kernel, C=c, gamma=0.1, epsilon=.1)
     clf.fit(train['data'], train['labels'])
     # Find the prediction and accuracy on the training set.

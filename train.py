@@ -12,6 +12,82 @@ import matplotlib.pyplot as plt
 import os
 
 
+class trainer():
+    def __init__(self,opt, training_folder):
+        self.log_folder = os.path.join(training_folder, 'logs')
+        self.checkpoint_folder = os.path.join(training_folder, 'checkpoints')
+        self.plot_folder = os.path.join(training_folder, 'plots')
+        self.train_data = {}
+        self.test_data = {}
+        self.validation_data = {}
+        self.svm_type = "classification"
+
+        self.dataset = opt.dataset
+        self.train_path = opt.train_path
+        self.validation_percentage = opt.validation_percentage
+        self.normalize_data = opt.normalize_data
+        self.reduced_training_dataset = opt.reduced_training_dataset
+        self.feature_extraction = opt.feature_extraction
+        self.use_PCA = opt.use_PCA
+        self.grid_search = opt.grid_search
+
+    def grid_search(self, c_svm, kernel_svm):
+        acc_train_svm = {}
+        acc_test_svm = {}
+        progress_bar = tqdm(total=len(c_svm) * len(kernel_svm), desc='Grid searching for best svr')
+        for kernel in kernel_svm:
+            acc_train_svm[kernel] = []
+            acc_test_svm[kernel] = []
+            for c in c_svm:
+                acc1, acc2 = SVM.train_svm(self.train_data, self.validation_data, c, kernel, self.svm_type)
+                log_message = ("SVM kernel: {},\t SVM c parameter: {}\n".format(kernel, c))
+                log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
+                util.logger(log_message, self.log_folder)
+                acc_train_svm[kernel].append(acc1)
+                acc_test_svm[kernel].append(acc2)
+                progress_bar.update(1)
+
+        for key in acc_train_svm.keys():
+            plt.plot(c_svm, acc_train_svm[key], '.-', color='red')
+            plt.plot(c_svm, acc_test_svm[key], '.-', color='orange')
+            plt.xlabel('c')
+            plt.ylabel('Accuracy')
+            plt.title("Plot of accuracy vs c for training and validation data for {} kernel".format(key))
+            plt.grid()
+            plot_save_path = os.path.join(self.plot_folder, ("svm_{}.png".format(key)))
+            plt.savefig(plot_save_path)
+
+    def train(self):
+        # todo should create a wrapper to remove this if else
+        if self.dataset == "CIFAR10":
+            dataloader = CIFAR_10.cifar_dataloader(self.train_path, self.validation_percentage, i_normalize=self.normalize_data,
+                                                   i_reduced_training_dataset=self.reduced_training_dataset)
+            self.train_data, self.test_data, self.validation_data, label_names = dataloader.get_cifar_10()
+            self.svm_type = "classification"
+        elif self.dataset == "IMDB_WIKI":
+            dataloader = IMDB_Wiki.imdb_wiki_dataloader(self.train_path, self.validation_percentage,
+                                                        i_normalize=self.normalize_data,
+                                                        i_reduced_training_dataset=self.reduced_training_dataset)
+            self.train_data, self.test_data, self.validation_data = dataloader.get_imdb_wiki()
+            self.svm_type = "regression"
+
+        else:
+            print("Selected dataset: {} is not implemented".format(self.dataset))
+            raise NotImplementedError
+            return
+        if self.feature_extraction != "off":
+            train_feature, validation_feature = feature_extraction.get_features(self.train_data, self.validation,
+                                                                                feature_type=opt.feature_extraction)
+            self.train_data["data"] = train_feature
+            self.validation_data["data"] = validation_feature
+        if self.use_PCA:
+            self.train_data, self.validation_data = PCA.PCA_fun(self.train_data, self.validation_data)
+        if self.grid_search:
+            c_svm = [0.01, 0.1, 1, 10, 100]
+            kernel_svm = ['linear', 'poly', 'rbf', 'sigmoid']
+            self.grid_search(c_svm, kernel_svm)
+
+
 def train_CIFAR(opt, training_folder):
     log_folder = os.path.join(training_folder, 'logs')
     checkpoint_folder = os.path.join(training_folder, 'checkpoints')
@@ -98,4 +174,5 @@ def train_imdb_wiki(opt, training_folder):
 if __name__ == "__main__":
     opt = TrainOptions().parse()
     training_folder = util.create_folders_for_training(opt.train_experiment_name)
-    train_imdb_wiki(opt, training_folder)
+    trainer_obj = trainer(opt, training_folder)
+    trainer_obj.train()

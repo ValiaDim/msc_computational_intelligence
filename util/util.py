@@ -72,7 +72,7 @@ def create_folders_for_training(train_experiment_name):
             else:
                 break
         if changed_dir_name:
-            warnings.warn("The experiment name you provided already exists. Saving under {}".format(training_dir))
+            print("The experiment name you provided already exists. Saving under {}".format(training_dir))
     else:
         training_dir = os.path.join(root_log, "training")
         dir_no = 0
@@ -82,7 +82,7 @@ def create_folders_for_training(train_experiment_name):
                 training_dir = os.path.join(root_log, "training_" + str(dir_no))
             else:
                 break
-        warnings.warn("You didn't provide any experiment name. Saving under {}".format(training_dir))
+        print("You didn't provide any experiment name. Saving under {}".format(training_dir))
     mkdir(training_dir)
     log_folder = os.path.join(training_dir, 'logs')
     checkpoint_folder = os.path.join(training_dir, 'checkpoints')

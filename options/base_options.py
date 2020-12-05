@@ -10,7 +10,9 @@ class BaseOptions():
 
     def initialize(self):
         mode_options = ["train", "test", "inference"]
+        dataset_options = ["CIFAR10", "IMDB_WIKI"]
         self.parser.add_argument('--mode', choices=mode_options, help='Select mode: ' + ' | '.join(mode_options))
+        self.parser.add_argument('--dataset', choices=dataset_options, help='Select dataset: ' + ' | '.join(dataset_options))
         self.initialized = True
 
     def parse(self):

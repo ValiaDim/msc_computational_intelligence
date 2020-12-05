@@ -71,7 +71,6 @@ class cifar_dataloader():
         self.cifar_train['filenames'] = self.cifar_train['filenames'][:training_lenght]
         self.cifar_train['labels'] = self.cifar_train['labels'][:training_lenght]
 
-
     def load_cifar_10_data(self, negatives=False):
         """
         Return train_data, train_filenames, train_labels, test_data, test_filenames, test_labels
@@ -142,7 +141,10 @@ class cifar_dataloader():
         self.cifar_test['filenames'] = cifar_test_filenames
         self.cifar_test['labels'] = cifar_test_labels
         if self.percentage_validation:
-            assert self.percentage_validation <= 1, "Percentage validation needs to be less than 1"
+            assert 0 <= self.percentage_validation <= 1, "Percentage validation needs to be less than 1"
+            if self.percentage_validation < 0 or self.percentage_validation >= 1:
+                self.percentage_validation = 0.2
+                print("Setting to 0.2")
             self.create_validation_set()
         if self.reduced_training_dataset:
             self.reduce_dataset()
