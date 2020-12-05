@@ -32,9 +32,9 @@ class imdb_wiki_dataloader():
         print(self.imdb_wiki_train['data'][0])
 
         # Normalize
-        self.imdb_wiki_train['data'] = ((self.imdb_wiki_train['data'] / 255) * 2) - 1  # better to 0..1 think of it
-        self.imdb_wiki_test['data'] = ((self.imdb_wiki_test['data'] / 255) * 2) - 1  # better to 0..1 think of it
-        self.imdb_wiki_validation['data'] = ((self.imdb_wiki_validation['data'] / 255) * 2) - 1  # better to 0..1 think of it
+        self.imdb_wiki_train['data'] = (self.imdb_wiki_train['data'] / 255)  # better to 0..1 think of it
+        self.imdb_wiki_test['data'] = (self.imdb_wiki_test['data'] / 255) # better to 0..1 think of it
+        self.imdb_wiki_validation['data'] = (self.imdb_wiki_validation['data'] / 255)  # better to 0..1 think of it
 
         print(self.imdb_wiki_train['data'].shape)
         print(self.imdb_wiki_train['data'][0])

@@ -9,7 +9,6 @@ from util import util
 
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 import os
 
 
@@ -53,7 +52,7 @@ def train_CIFAR(opt, training_folder):
         plt.grid()
         plot_save_path = os.path.join(plot_folder,("svm_{}.png".format(key)))
         plt.savefig(plot_save_path)
-        # plt.show()
+
 
 def train_imdb_wiki(opt, training_folder):
     log_folder = os.path.join(training_folder, 'logs')
@@ -71,7 +70,7 @@ def train_imdb_wiki(opt, training_folder):
     pbar = tqdm(total=len(c_svm) * len(kernel_svm), desc='Grid searching for best svr')
     acc_train_svm = {}
     acc_test_svm = {}
-    # train, val = PCA.PCA_fun(train, validation)
+    train, val = PCA.PCA_fun(train, validation)
     for kernel in kernel_svm:
         acc_train_svm[kernel] = []
         acc_test_svm[kernel] = []
@@ -94,7 +93,8 @@ def train_imdb_wiki(opt, training_folder):
         plot_save_path = os.path.join(plot_folder, ("svm_{}.png".format(key)))
         plt.savefig(plot_save_path)
 
+
 if __name__ == "__main__":
-    opt = TrainOptions().parse()  # set CUDA_VISIBLE_DEVICES before import torch
+    opt = TrainOptions().parse()
     training_folder = util.create_folders_for_training(opt.train_experiment_name)
     train_imdb_wiki(opt, training_folder)
