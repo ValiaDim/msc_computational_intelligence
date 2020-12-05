@@ -24,7 +24,7 @@ def get_features(train, test, save_features=False, feature_type="HOG"):
     train_feature = []
     test_feature = []
     if feature_type == "HOG":
-        for data in test["data_non_processed"]:
+        for data in test["data"]:
             if DEBUG:
                 data_bgr = cv.cvtColor(data, cv.COLOR_BGR2RGB)
                 cv.imshow("test", data_bgr)
@@ -38,7 +38,7 @@ def get_features(train, test, save_features=False, feature_type="HOG"):
                 fd_path = os.path.join('./data/features/test/', fd_name)
                 joblib.dump(fd, fd_path)
         print("Test features are extracted.")
-        for data in train["data_non_processed"]:
+        for data in train["data"]:
             gray = utils.rgb2gray(data)/255.0
             fd = hog(gray, orientations, pixels_per_cell, cells_per_block)
             train_feature.append(fd)
@@ -55,7 +55,7 @@ def get_features(train, test, save_features=False, feature_type="HOG"):
         age_model.load_state_dict(torch.load(DEX_weights_path))
         age_model.eval()
         print("DEX model is loaded")
-        for img in train["data_non_processed"]:
+        for img in train["data"]:
             if DEBUG:
                 img_bgr = cv.cvtColor(img, cv.COLOR_BGR2RGB)
                 cv.imshow("test", img_bgr)

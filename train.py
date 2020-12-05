@@ -30,7 +30,7 @@ class trainer():
         self.feature_extraction = opt.feature_extraction
         self.use_PCA = opt.use_PCA
         self.grid_search = opt.grid_search
-        self.load_raw_images = opt.feature_extraction != "off"
+        self.load_raw_images = (opt.feature_extraction != "off")
 
     def perform_grid_search(self, c_svm, kernel_svm):
         acc_train_svm = {}

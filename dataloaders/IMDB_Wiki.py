@@ -88,6 +88,7 @@ class imdb_wiki_dataloader():
                     cropped_face = cv.resize(cropped_face, (30, 30))
                     images.append(cv.cvtColor(cropped_face, cv.COLOR_BGR2RGB))
                 else:
+                    image = cv.resize(image, (224, 224))
                     images.append(cv.cvtColor(image, cv.COLOR_BGR2RGB))
                 ages.append(data["age"][iter])
                 filenames.append(image_path)
@@ -110,7 +111,7 @@ class imdb_wiki_dataloader():
         if self.percentage_validation:
             assert self.percentage_validation <= 1, "Percentage validation needs to be less than 1"
             self.create_validation_test_set()
-        if self.raw_images:
+        if not self.raw_images:
             self.preprocess_data()
         return self.imdb_wiki_train, self.imdb_wiki_test, self.imdb_wiki_validation
 
