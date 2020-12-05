@@ -14,14 +14,14 @@ batches contain exactly 5000 images from each class.
 """
 
 class cifar_dataloader():
-    def __init__(self, i_data_dir, i_percentage_validation, i_preprocess=True, i_reduced_training_dataset=False):
+    def __init__(self, i_data_dir, i_percentage_validation, i_normalize=True, i_reduced_training_dataset=False):
         self.cifar_train = {}
         self.cifar_test = {}
         self.cifar_validation = {}
         self.cifar_label_names = []
         self.percentage_validation = i_percentage_validation
         self.data_dir = i_data_dir
-        self.preprocess = i_preprocess
+        self.normalize = i_normalize
         self.reduced_training_dataset = i_reduced_training_dataset
 
     def preprocess_data(self):
@@ -39,9 +39,10 @@ class cifar_dataloader():
         print(self.cifar_train['data'][0])
 
         # Normalize
-        self.cifar_train['data'] = ((self.cifar_train['data'] / 255) * 2) - 1  # better to 0..1 think of it
-        self.cifar_test['data'] = ((self.cifar_test['data'] / 255) * 2) - 1  # better to 0..1 think of it
-        self.cifar_validation['data'] = ((self.cifar_validation['data'] / 255) * 2) - 1  # better to 0..1 think of it
+        if self.normalize:
+            self.cifar_train['data'] = (self.cifar_train['data'] / 255)
+            self.cifar_test['data'] = (self.cifar_test['data'] / 255)
+            self.cifar_validation['data'] = (self.cifar_validation['data'] / 255)
 
         print(self.cifar_train['data'].shape)
         print(self.cifar_train['data'][0])
@@ -141,15 +142,14 @@ class cifar_dataloader():
         self.cifar_test['filenames'] = cifar_test_filenames
         self.cifar_test['labels'] = cifar_test_labels
         if self.percentage_validation:
-            assert (self.percentage_validation <= 1, "Percentage validation needs to be less than 1")
+            assert self.percentage_validation <= 1, "Percentage validation needs to be less than 1"
             self.create_validation_set()
         if self.reduced_training_dataset:
             self.reduce_dataset()
 
     def get_cifar_10(self):
         self.load_cifar_10_data()
-        if self.preprocess:
-            self.preprocess_data()
+        self.preprocess_data()
         return self.cifar_train, self.cifar_test, self.cifar_validation, self.cifar_label_names
 
 

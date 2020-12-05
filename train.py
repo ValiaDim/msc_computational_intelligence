@@ -17,7 +17,7 @@ def train_CIFAR(opt, training_folder):
     checkpoint_folder = os.path.join(training_folder, 'checkpoints')
     plot_folder = os.path.join(training_folder, 'plots')
 
-    dataloader = CIFAR_10.cifar_dataloader(opt.train_path, opt.validation_percentage, i_preprocess=False,
+    dataloader = CIFAR_10.cifar_dataloader(opt.train_path, opt.validation_percentage, i_normalize=opt.normalize_data,
                                            i_reduced_training_dataset=opt.reduced_training_dataset)
     train, test, validation, label_names = dataloader.get_cifar_10()
     train_feature, validation_feature = feature_extraction.get_features(train, validation)
@@ -30,8 +30,8 @@ def train_CIFAR(opt, training_folder):
     acc_train_svm = {}
     acc_test_svm = {}
     acc11, acc21 = SVM.svm_fun2(train, validation)
-
-    # train, val = PCA.PCA_fun(train, validation)
+    if opt.use_PCA:
+        train, val = PCA.PCA_fun(train, validation)
     for kernel in kernel_svm:
         acc_train_svm[kernel] = []
         acc_test_svm[kernel] = []
@@ -59,7 +59,7 @@ def train_imdb_wiki(opt, training_folder):
     checkpoint_folder = os.path.join(training_folder, 'checkpoints')
     plot_folder = os.path.join(training_folder, 'plots')
 
-    dataloader = IMDB_Wiki.imdb_wiki_dataloader(opt.train_path, opt.validation_percentage, i_preprocess=False,
+    dataloader = IMDB_Wiki.imdb_wiki_dataloader(opt.train_path, opt.validation_percentage, i_normalize=opt.normalize_data,
                                            i_reduced_training_dataset=opt.reduced_training_dataset)
     train, test, validation = dataloader.get_imdb_wiki()
     # train_feature, validation_feature = feature_extraction.get_features(train, validation)
@@ -70,7 +70,8 @@ def train_imdb_wiki(opt, training_folder):
     pbar = tqdm(total=len(c_svm) * len(kernel_svm), desc='Grid searching for best svr')
     acc_train_svm = {}
     acc_test_svm = {}
-    train, val = PCA.PCA_fun(train, validation)
+    if opt.use_PCA:
+        train, val = PCA.PCA_fun(train, validation, None)
     for kernel in kernel_svm:
         acc_train_svm[kernel] = []
         acc_test_svm[kernel] = []

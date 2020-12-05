@@ -13,6 +13,8 @@ class TrainOptions(BaseOptions):
                                                                                          "grid_search parameter")
         self.parser.add_argument('--validation_percentage', default=0.2, help="Add the percentage of the validation "
                                                                               "set. Default is: 0.2")
+        self.parser.add_argument('--normalize_data', default=True, type=bool, help="If you want to normalize the data "
+                                                                                   "to 0...1.Default is True")
         self.parser.add_argument('--train_experiment_name', help="Optionally add the experiment name. This will be the "
                                                                  "folder name under .trainings folder")
         self.parser.add_argument('--use_PCA', action='store_true', help="Use PCA for dimensionality reduction")

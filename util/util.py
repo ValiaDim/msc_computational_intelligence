@@ -60,18 +60,30 @@ def mkdir(path):
 def create_folders_for_training(train_experiment_name):
     root_log = "trainings"
     mkdir(root_log)
-    training_dir = os.path.join(root_log, "training")
     if train_experiment_name:
-        if os.path.isdir(os.path.join(root_log, train_experiment_name)):
-            existing_folders = glob.glob('{}*'.format(os.path.join(root_log, train_experiment_name)))
-            # todo
-            warnings.warn("The experiment name you provided already exists. Saving under {}".format(os.path.join(root_log, train_experiment_name)))
-            training_dir = os.path.join(root_log, train_experiment_name)
-        else:
-            training_dir = os.path.join(root_log, train_experiment_name)
-        mkdir(training_dir)
+        training_dir = os.path.join(root_log, train_experiment_name)
+        dir_no = 0
+        changed_dir_name = False
+        while True:
+            dir_no += 1
+            if os.path.isdir(training_dir):
+                training_dir = os.path.join(root_log, train_experiment_name + str(dir_no))
+                changed_dir_name = True
+            else:
+                break
+        if changed_dir_name:
+            warnings.warn("The experiment name you provided already exists. Saving under {}".format(training_dir))
     else:
-        mkdir(training_dir)
+        training_dir = os.path.join(root_log, "training")
+        dir_no = 0
+        while True:
+            dir_no += 1
+            if os.path.isdir(training_dir):
+                training_dir = os.path.join(root_log, "training_" + str(dir_no))
+            else:
+                break
+        warnings.warn("You didn't provide any experiment name. Saving under {}".format(training_dir))
+    mkdir(training_dir)
     log_folder = os.path.join(training_dir, 'logs')
     checkpoint_folder = os.path.join(training_dir, 'checkpoints')
     plot_folder = os.path.join(training_dir, 'plots')
