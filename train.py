@@ -9,6 +9,7 @@ from util import util
 
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import numpy as np
 import os
 
 
@@ -71,7 +72,8 @@ class trainer():
             dataloader = IMDB_Wiki.imdb_wiki_dataloader(self.train_path, self.validation_percentage,
                                                         i_normalize=self.normalize_data,
                                                         i_reduced_training_dataset=self.reduced_training_dataset,
-                                                        i_raw_images=self.load_raw_images)
+                                                        i_raw_images=self.load_raw_images,
+                                                        i_feature_type=self.feature_extraction)
             self.train_data, self.test_data, self.validation_data = dataloader.get_imdb_wiki()
             self.svm_type = "regression"
 
@@ -82,8 +84,8 @@ class trainer():
         if self.feature_extraction != "off":
             train_feature, validation_feature = feature_extraction.get_features(self.train_data, self.validation_data,
                                                                                 feature_type=opt.feature_extraction)
-            self.train_data["data"] = train_feature
-            self.validation_data["data"] = validation_feature
+            self.train_data["data"] = np.stack(train_feature, axis=0)
+            self.validation_data["data"] = np.stack(validation_feature, axis=0)
         if self.use_PCA:
             self.train_data, self.validation_data = PCA.PCA_fun(self.train_data, self.validation_data)
         if self.grid_search:

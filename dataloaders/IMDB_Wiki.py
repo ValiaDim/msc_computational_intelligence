@@ -8,7 +8,8 @@ DEBUG = False
 
 
 class imdb_wiki_dataloader():
-    def __init__(self, i_data_dir, i_percentage_validation, i_normalize=True, i_reduced_training_dataset=False, i_raw_images=False):
+    def __init__(self, i_data_dir, i_percentage_validation, i_normalize=True, i_reduced_training_dataset=False,
+                 i_raw_images=False, i_feature_type="off"):
         self.imdb_wiki_train = {}
         self.imdb_wiki_test = {}
         self.imdb_wiki_validation = {}
@@ -18,6 +19,7 @@ class imdb_wiki_dataloader():
         self.percentage_test = 0.2
         self.normalize = i_normalize
         self.raw_images = i_raw_images
+        self.feature_type = i_feature_type
         self.reduced_training_dataset = i_reduced_training_dataset
         self.face_cascade = cv.CascadeClassifier('dataloaders/haarcascade_frontalface_default.xml')
 
@@ -69,7 +71,7 @@ class imdb_wiki_dataloader():
         filenames = []
         iter = 0
         if self.reduced_training_dataset:
-            dataset_length = 100
+            dataset_length = 5000
         else:
             dataset_length = len(data["path"])
         pbar = tqdm(total=dataset_length, desc='Cropping Face Images')
@@ -79,13 +81,13 @@ class imdb_wiki_dataloader():
             gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
             faces_rect = self.face_cascade.detectMultiScale(gray, 1.1, 4)
             if len(faces_rect) == 1:
-                if not self.raw_images:
+                if self.feature_type != "DEX":
                     [x, y, w, h] = faces_rect[0]
                     cropped_face = image[x:x+w, y:y+h]
                     if DEBUG:
                         cv.imshow('cropped_face', cropped_face)
                         cv.waitKey()
-                    cropped_face = cv.resize(cropped_face, (30, 30))
+                    cropped_face = cv.resize(cropped_face, (50, 50))
                     images.append(cv.cvtColor(cropped_face, cv.COLOR_BGR2RGB))
                 else:
                     image = cv.resize(image, (224, 224))
@@ -105,7 +107,7 @@ class imdb_wiki_dataloader():
             iter += 1
             if len(ages) == dataset_length:
                 break
-        self.imdb_wiki_train["data"] = np.stack(images, axis=0 )
+        self.imdb_wiki_train["data"] = np.stack(images, axis=0)
         self.imdb_wiki_train["labels"] = ages
         self.imdb_wiki_train["filenames"] = filenames
         if self.percentage_validation:

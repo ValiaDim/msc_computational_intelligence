@@ -10,7 +10,7 @@ from models import DEX
 
 from dataloaders import utils
 
-DEBUG = True
+DEBUG = False
 
 # HoG parameters
 orientations = 9
