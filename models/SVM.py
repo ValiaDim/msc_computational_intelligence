@@ -5,25 +5,22 @@ from sklearn.svm import SVR
 import numpy as np
 
 
-def train_svm(train, validation, c, kernel, type):
+def train_svm(train, validation, c, kernel, type, max_number_of_iter=100000):
     # todo this should be a class
     if type == "classification":
-        return svm_classifier(train, validation, c, kernel)
+        return svm_classifier(train, validation, c, kernel, max_number_of_iter)
     if type == "regression":
-        return svr_regressor(train, validation, c, kernel) # todo regression has more arguments!
+        return svr_regressor(train, validation, c, kernel, max_number_of_iter)  # todo regression has more arguments!
     else:
         raise NotImplementedError
 
 
-def svm_classifier(train, validation, c, kernel, verbose=False):
-    svc = svm.SVC(probability=False, kernel=kernel, C=c, verbose=False, max_iter=100000)
-
+def svm_classifier(train, validation, c, kernel, max_number_of_iter=100000, verbose=False):
+    svc = svm.SVC(probability=False, kernel=kernel, C=c, verbose=False, max_iter=max_number_of_iter)
     svc.fit(train['data'], train['labels'])
-
     # Find the prediction and accuracy on the training set.
     Yhat_svc_linear_train = svc.predict(train['data'])
     acc_train = np.mean(Yhat_svc_linear_train == train['labels'])
-
 
     # Find the prediction and accuracy on the test set.
     Yhat_svc_linear_test = svc.predict(validation['data'])
@@ -34,8 +31,8 @@ def svm_classifier(train, validation, c, kernel, verbose=False):
     return acc_train, acc_validation
 
 
-def svr_regressor(train, validation, c, kernel, verbose=False):
-    clf = SVR(kernel=kernel, C=c, gamma=0.1, epsilon=.1, max_iter=100000)
+def svr_regressor(train, validation, c, kernel, max_number_of_iter=100000, verbose=False):
+    clf = SVR(kernel=kernel, C=c, gamma=0.1, epsilon=.1, max_iter=max_number_of_iter)
     clf.fit(train['data'], train['labels'])
     # Find the prediction and accuracy on the training set.
     Yhat_svc_linear_train = clf.predict(train['data'])

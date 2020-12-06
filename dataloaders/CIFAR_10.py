@@ -14,7 +14,7 @@ batches contain exactly 5000 images from each class.
 """
 
 class cifar_dataloader():
-    def __init__(self, i_data_dir, i_percentage_validation, i_normalize=True, i_reduced_training_dataset=False,
+    def __init__(self, i_data_dir, i_percentage_validation, i_normalize=True, i_reduced_training_dataset=None,
                  i_raw_images=False):
         self.cifar_train = {}
         self.cifar_test = {}
@@ -55,7 +55,7 @@ class cifar_dataloader():
         self.cifar_train['labels'] = self.cifar_train['labels'][validation_length:]
 
     def reduce_dataset(self):
-        training_lenght = 5000
+        training_lenght = self.reduced_training_dataset
         validation_lenght = int(self.percentage_validation*training_lenght)
         self.cifar_validation['data'] = self.cifar_validation['data'][:validation_lenght, :, :, :]
         self.cifar_validation['filenames'] = self.cifar_validation['filenames'][:validation_lenght]
@@ -140,7 +140,7 @@ class cifar_dataloader():
                 self.percentage_validation = 0.2
                 print("Setting to 0.2")
             self.create_validation_set()
-        if self.reduced_training_dataset:
+        if self.reduced_training_dataset is not None:
             self.reduce_dataset()
 
     def get_cifar_10(self):

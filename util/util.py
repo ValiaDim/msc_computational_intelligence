@@ -57,7 +57,8 @@ def mkdir(path):
         os.makedirs(path)
 
 
-def create_folders_for_training(train_experiment_name):
+def create_folders_for_training(options):
+    train_experiment_name = options.train_experiment_name
     root_log = "trainings"
     mkdir(root_log)
     if train_experiment_name:
@@ -88,6 +89,15 @@ def create_folders_for_training(train_experiment_name):
     checkpoint_folder = os.path.join(training_dir, 'checkpoints')
     plot_folder = os.path.join(training_dir, 'plots')
     mkdirs([log_folder, checkpoint_folder, plot_folder])
+    # log the options of this experiment
+    args = vars(options)
+    # save to the disk
+    file_name = os.path.join(log_folder, 'opt.txt')
+    with open(file_name, 'wt') as opt_file:
+        opt_file.write('------------ Options -------------\n')
+        for k, v in sorted(args.items()):
+            opt_file.write('%s: %s\n' % (str(k), str(v)))
+        opt_file.write('-------------- End ----------------\n')
     return training_dir
 
 

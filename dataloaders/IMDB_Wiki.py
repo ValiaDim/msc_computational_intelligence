@@ -70,10 +70,11 @@ class imdb_wiki_dataloader():
         ages = []
         filenames = []
         iter = 0
-        if self.reduced_training_dataset:
-            dataset_length = 5000
+        if self.reduced_training_dataset is not None:
+            dataset_length = self.reduced_training_dataset
         else:
             dataset_length = len(data["path"])
+            print(dataset_length)
         pbar = tqdm(total=dataset_length, desc='Cropping Face Images')
         for path in data["path"]:
             image_path = os.path.join(self.data_dir, path)
@@ -94,7 +95,7 @@ class imdb_wiki_dataloader():
                     images.append(cv.cvtColor(image, cv.COLOR_BGR2RGB))
                 ages.append(data["age"][iter])
                 filenames.append(image_path)
-                if self.reduced_training_dataset:
+                if self.reduced_training_dataset is not None:
                     pbar.update(1)
             if DEBUG:
                 for (x, y, w, h) in faces_rect:
@@ -102,7 +103,7 @@ class imdb_wiki_dataloader():
                 # Display the output
                 cv.imshow('img', image)
                 cv.waitKey()
-            if not self.reduced_training_dataset:
+            if self.reduced_training_dataset is None:
                 pbar.update(1)
             iter += 1
             if len(ages) == dataset_length:

@@ -32,6 +32,7 @@ class trainer():
         self.use_PCA = opt.use_PCA
         self.grid_search = opt.grid_search
         self.load_raw_images = (opt.feature_extraction != "off")
+        self.max_number_of_iter = opt.max_number_of_iter
 
     def perform_grid_search(self, c_svm, kernel_svm):
         acc_train_svm = {}
@@ -97,6 +98,7 @@ class trainer():
 
 if __name__ == "__main__":
     opt = TrainOptions().parse()
-    training_folder = util.create_folders_for_training(opt.train_experiment_name)
+    training_folder = util.create_folders_for_training(opt)
+    print("Starting experiment named: {}".format(opt.train_experiment_name))
     trainer_obj = trainer(opt, training_folder)
     trainer_obj.train()
