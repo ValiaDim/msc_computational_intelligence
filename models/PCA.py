@@ -6,7 +6,9 @@ import numpy as np
 def PCA_fun(train, val, explained_variance=0.95):
     projected_train = train
     projected_val = val
-    assert train['data'].shape[0] <= train['data'].shape[1], "The data samples needs to be more than the features!"
+    print(train['data'].shape[0])
+    print(train['data'].shape[1])
+    assert (train['data'].shape[0] >= train['data'].shape[1]), "The data samples needs to be more than the features!"
     if explained_variance is None:
         pca = PCA().fit(train['data'])
         plt.plot(np.cumsum(pca.explained_variance_ratio_))

@@ -16,7 +16,7 @@ def train_svm(train, validation, c, kernel, type):
 
 
 def svm_classifier(train, validation, c, kernel, verbose=False):
-    svc = svm.SVC(probability=False, kernel=kernel, C=c, verbose=False)
+    svc = svm.SVC(probability=False, kernel=kernel, C=c, verbose=False, max_iter=100000)
 
     svc.fit(train['data'], train['labels'])
 
@@ -35,7 +35,7 @@ def svm_classifier(train, validation, c, kernel, verbose=False):
 
 
 def svr_regressor(train, validation, c, kernel, verbose=False):
-    clf = SVR(kernel=kernel, C=c, gamma=0.1, epsilon=.1)
+    clf = SVR(kernel=kernel, C=c, gamma=0.1, epsilon=.1, max_iter=100000)
     clf.fit(train['data'], train['labels'])
     # Find the prediction and accuracy on the training set.
     Yhat_svc_linear_train = clf.predict(train['data'])

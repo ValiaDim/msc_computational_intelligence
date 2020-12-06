@@ -50,6 +50,7 @@ class trainer():
                 progress_bar.update(1)
 
         for key in acc_train_svm.keys():
+            plt.clf()
             plt.plot(c_svm, acc_train_svm[key], '.-', color='red')
             plt.plot(c_svm, acc_test_svm[key], '.-', color='orange')
             plt.xlabel('c')
