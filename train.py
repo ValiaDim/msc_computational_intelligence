@@ -33,6 +33,7 @@ class trainer():
         self.grid_search = opt.grid_search
         self.load_raw_images = (opt.feature_extraction != "off")
         self.max_number_of_iter = opt.max_number_of_iter
+        self.feature_layer = opt.feature_layer
 
     def perform_grid_search(self, c_svm, kernel_svm):
         acc_train_svm = {}
@@ -85,7 +86,8 @@ class trainer():
             return
         if self.feature_extraction != "off":
             train_feature, validation_feature = feature_extraction.get_features(self.train_data, self.validation_data,
-                                                                                feature_type=opt.feature_extraction)
+                                                                                feature_type=self.feature_extraction,
+                                                                                feature_layer=self.feature_layer)
             self.train_data["data"] = np.stack(train_feature, axis=0)
             self.validation_data["data"] = np.stack(validation_feature, axis=0)
         if self.use_PCA:

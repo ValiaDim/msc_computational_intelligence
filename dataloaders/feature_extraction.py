@@ -5,7 +5,7 @@ import cv2 as cv
 import joblib
 import os
 import torch
-
+from tqdm import tqdm
 from models import DEX
 
 from dataloaders import utils
@@ -20,7 +20,7 @@ visualize = False
 normalize = True
 
 
-def get_features(train, test, save_features=False, feature_type="HOG"):
+def get_features(train, test, save_features=False, feature_type="HOG", feature_layer=None):
     train_feature = []
     test_feature = []
     if feature_type == "HOG":
@@ -50,11 +50,12 @@ def get_features(train, test, save_features=False, feature_type="HOG"):
                 joblib.dump(fd, fd_path)
         print("Train features are extracted.")
     elif feature_type == "DEX":
-        age_model = DEX.Age()
+        age_model = DEX.Age(which_features=feature_layer)
         DEX_weights_path = "data/age_sd.pth"
         age_model.load_state_dict(torch.load(DEX_weights_path))
         age_model.eval()
         print("DEX model is loaded")
+        progress_bar = tqdm(total=len(train["data"]), desc='Extracting train features')
         for img in train["data"]:
             if DEBUG:
                 img_bgr = cv.cvtColor(img, cv.COLOR_BGR2RGB)
@@ -68,5 +69,26 @@ def get_features(train, test, save_features=False, feature_type="HOG"):
             with torch.no_grad():
                 output = age_model(tensor)
             output = output.numpy().squeeze()
+            train_feature.append(output)
+            progress_bar.update(1)
+        print("Train features are extracted.")
+        progress_bar = tqdm(total=len(test["data"]), desc='Extracting test features')
+        for img in test["data"]:
+            if DEBUG:
+                img_bgr = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+                cv.imshow("test", img_bgr)
+                cv.waitKey(0)
+            img = cv.resize(img, (224, 224))
+            img = np.transpose(img, (2, 0, 1))
+            img = img[None, :, :, :]
+            tensor = torch.from_numpy(img)
+            tensor = tensor.type('torch.FloatTensor')
+            with torch.no_grad():
+                output = age_model(tensor)
+            output = output.numpy().squeeze()
+            test_feature.append(output)
+            progress_bar.update(1)
+        print("Train features are extracted.")
+
     return train_feature, test_feature
 
