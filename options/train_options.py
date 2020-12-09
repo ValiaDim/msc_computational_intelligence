@@ -4,8 +4,10 @@ from .base_options import BaseOptions
 class TrainOptions(BaseOptions):
     def initialize(self):
         BaseOptions.initialize(self)
-        feature_extraction_methods = ["off", "HOG", "DEX"]
-        feature_layer = ["fc1", "fc2", "cls", "conv"]
+        feature_extraction_methods = ["off", "HOG", "DEX", "VGG19", "MobileNetV2"]
+        feature_layer = ["fc1", "fc2", "cls", "conv", "vgg_layer1", "vgg_layer2", "vgg_layer3", "vgg_layer4",
+                         "vgg_layer5", "MobileNet_layer1", "MobileNet_layer2", "MobileNet_layer3", "MobileNet_layer4",
+                         "MobileNet_layer5", "MobileNet_layer6"]
         self.parser.add_argument('--train_path', required=True, help="The root path of dataset")
         self.parser.add_argument('--grid_search', action='store_true', help="Activate grid search for the "
                                                                             "hyperparameter search")

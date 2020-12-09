@@ -7,6 +7,8 @@ import os
 import torch
 from tqdm import tqdm
 from models import DEX
+from models.VGG19 import VGG19_batchnorm
+from models.MobileNetV2 import MobileNetV2
 
 from dataloaders import utils
 
@@ -89,6 +91,79 @@ def get_features(train, test, save_features=False, feature_type="HOG", feature_l
             test_feature.append(output)
             progress_bar.update(1)
         print("Train features are extracted.")
-
+    elif feature_type=="VGG19":
+        vgg19_model = VGG19_batchnorm(which_features=feature_layer)
+        print("VGG model is loaded")
+        progress_bar = tqdm(total=len(train["data"]), desc='Extracting train features')
+        for img in train["data"]:
+            if DEBUG:
+                img_bgr = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+                cv.imshow("test", img_bgr)
+                cv.waitKey(0)
+            img = cv.resize(img, (224, 224))
+            img = np.transpose(img, (2, 0, 1))
+            img = img[None, :, :, :]
+            tensor = torch.from_numpy(img)
+            tensor = tensor.type('torch.FloatTensor')
+            with torch.no_grad():
+                output = vgg19_model(tensor)
+            output = output.numpy().squeeze()
+            train_feature.append(output)
+            progress_bar.update(1)
+        print("Train features are extracted.")
+        progress_bar = tqdm(total=len(test["data"]), desc='Extracting test features')
+        for img in test["data"]:
+            if DEBUG:
+                img_bgr = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+                cv.imshow("test", img_bgr)
+                cv.waitKey(0)
+            img = cv.resize(img, (224, 224))
+            img = np.transpose(img, (2, 0, 1))
+            img = img[None, :, :, :]
+            tensor = torch.from_numpy(img)
+            tensor = tensor.type('torch.FloatTensor')
+            with torch.no_grad():
+                output = vgg19_model(tensor)
+            output = output.numpy().squeeze()
+            test_feature.append(output)
+            progress_bar.update(1)
+        print("Train features are extracted.")
+    elif feature_type == "MobileNetV2":
+        mobilenetV2_model = MobileNetV2(which_features=feature_layer)
+        print("MobileNetV2 model is loaded")
+        progress_bar = tqdm(total=len(train["data"]), desc='Extracting train features')
+        for img in train["data"]:
+            if DEBUG:
+                img_bgr = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+                cv.imshow("test", img_bgr)
+                cv.waitKey(0)
+            img = cv.resize(img, (224, 224))
+            img = np.transpose(img, (2, 0, 1))
+            img = img[None, :, :, :]
+            tensor = torch.from_numpy(img)
+            tensor = tensor.type('torch.FloatTensor')
+            with torch.no_grad():
+                output = mobilenetV2_model(tensor)
+            output = output.numpy().squeeze()
+            train_feature.append(output)
+            progress_bar.update(1)
+        print("Train features are extracted.")
+        progress_bar = tqdm(total=len(test["data"]), desc='Extracting test features')
+        for img in test["data"]:
+            if DEBUG:
+                img_bgr = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+                cv.imshow("test", img_bgr)
+                cv.waitKey(0)
+            img = cv.resize(img, (224, 224))
+            img = np.transpose(img, (2, 0, 1))
+            img = img[None, :, :, :]
+            tensor = torch.from_numpy(img)
+            tensor = tensor.type('torch.FloatTensor')
+            with torch.no_grad():
+                output = mobilenetV2_model(tensor)
+            output = output.numpy().squeeze()
+            test_feature.append(output)
+            progress_bar.update(1)
+        print("Train features are extracted.")
     return train_feature, test_feature
 
