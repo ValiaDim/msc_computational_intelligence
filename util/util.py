@@ -101,11 +101,12 @@ def create_folders_for_training(options):
     return training_dir
 
 
-def logger(message, dir):
+def logger(message, dir, change_classifier=True):
     log_path = os.path.join(dir, "logger")
     f = open(log_path, "a")
     f.write(message)
-    f.write("--------------------------------------------------------------------\n")
+    if change_classifier:
+        f.write("--------------------------------------------------------------------\n")
     f.close()
 
 

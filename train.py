@@ -3,9 +3,9 @@ from dataloaders import IMDB_Wiki
 from dataloaders import feature_extraction
 from models import SVM
 from models import PCA
+from models import LDA
 from options.train_options import TrainOptions
 from util import util
-
 
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -29,13 +29,14 @@ class trainer():
         self.normalize_data = opt.normalize_data
         self.reduced_training_dataset = opt.reduced_training_dataset
         self.feature_extraction = opt.feature_extraction
-        self.use_PCA = opt.use_PCA
+        self.pca_type = opt.pca_type
+        self.classifier_type = opt.classifier_type
         self.grid_search = opt.grid_search
         self.load_raw_images = (opt.feature_extraction != "off")
         self.max_number_of_iter = opt.max_number_of_iter
         self.feature_layer = opt.feature_layer
 
-    def perform_grid_search(self, c_svm, kernel_svm):
+    def perform_svm_grid_search(self, c_svm, kernel_svm):
         acc_train_svm = {}
         acc_test_svm = {}
         progress_bar = tqdm(total=len(c_svm) * len(kernel_svm), desc='Grid searching for best svm')
@@ -61,6 +62,12 @@ class trainer():
             plt.grid()
             plot_save_path = os.path.join(self.plot_folder, ("svm_{}.png".format(key)))
             plt.savefig(plot_save_path)
+
+    def perform_lda_grid_search(self):
+        acc1, acc2 = LDA.lda_classifier(self.train_data, self.validation_data)
+        log_message = "LDA classifier: "
+        log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
+        util.logger(log_message, self.log_folder)
 
     def train(self):
         # todo should create a wrapper to remove this if else
@@ -90,12 +97,24 @@ class trainer():
                                                                                 feature_layer=self.feature_layer)
             self.train_data["data"] = np.stack(train_feature, axis=0)
             self.validation_data["data"] = np.stack(validation_feature, axis=0)
-        if self.use_PCA:
+        if self.pca_type == "PCA":
             self.train_data, self.validation_data = PCA.PCA_fun(self.train_data, self.validation_data)
+        elif self.pca_type == "KPCA":
+            log_message = "Used dimensionality reduction, via kernel PCA with kernel {}\n".format("rbf")
+            util.logger(log_message, self.log_folder, change_classifier=False)
+            self.train_data, self.validation_data = PCA.KPCA_fun(self.train_data, self.validation_data)
+        else:
+            if self.pca_type != "off":
+                print("Selected dimensionality reduction: {} is not implemented".format(self.pca_type))
+                raise NotImplementedError
+                return
         if self.grid_search:
-            c_svm = [0.01, 0.1, 1, 10, 100]
-            kernel_svm = ['linear', 'poly', 'rbf', 'sigmoid']
-            self.perform_grid_search(c_svm, kernel_svm)
+            if self.classifier_type == "svm":
+                c_svm = [0.01, 0.1, 1, 10, 100]
+                kernel_svm = ['linear', 'poly', 'rbf', 'sigmoid']
+                self.perform_svm_grid_search(c_svm, kernel_svm)
+            elif self.classifier_type == "lda":
+                self.perform_lda_grid_search()
 
 
 if __name__ == "__main__":

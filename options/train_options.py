@@ -4,6 +4,8 @@ from .base_options import BaseOptions
 class TrainOptions(BaseOptions):
     def initialize(self):
         BaseOptions.initialize(self)
+        classifier_types = ["svm", "lda", ]
+        pca_methods = ["off", "PCA", "KPCA"]
         feature_extraction_methods = ["off", "HOG", "DEX", "VGG19", "MobileNetV2"]
         feature_layer = ["fc1", "fc2", "cls", "conv", "vgg_layer1", "vgg_layer2", "vgg_layer3", "vgg_layer4",
                          "vgg_layer5", "MobileNet_layer1", "MobileNet_layer2", "MobileNet_layer3", "MobileNet_layer4",
@@ -22,7 +24,10 @@ class TrainOptions(BaseOptions):
                                                                                    "to 0...1.")
         self.parser.add_argument('--train_experiment_name', help="Optionally add the experiment name. This will be the "
                                                                  "folder name under .trainings folder")
-        self.parser.add_argument('--use_PCA', action='store_true', help="Use PCA for dimensionality reduction")
+        self.parser.add_argument('--classifier_type', default="svm", choices=classifier_types,
+                                 help='Select classifier type: ' + ' | '.join(classifier_types) )
+        self.parser.add_argument('--pca_type', default="off", choices=pca_methods,
+                                 help='Select dimensionality reduction method: ' + ' | '.join(pca_methods))
         self.parser.add_argument('--feature_extraction', default="off", choices=feature_extraction_methods,
                                  help='Select feature extraction method: ' + ' | '.join(feature_extraction_methods))
         self.parser.add_argument('--feature_layer', default="conv", choices=feature_layer,
