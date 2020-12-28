@@ -9,7 +9,7 @@ DEBUG = False
 
 class imdb_wiki_dataloader():
     def __init__(self, i_data_dir, i_percentage_validation, i_normalize=True, i_reduced_training_dataset=False,
-                 i_raw_images=False, i_feature_type="off"):
+                 i_raw_images=False, i_feature_type="off", bin_ages=False):
         self.imdb_wiki_train = {}
         self.imdb_wiki_test = {}
         self.imdb_wiki_validation = {}
@@ -22,6 +22,7 @@ class imdb_wiki_dataloader():
         self.feature_type = i_feature_type
         self.reduced_training_dataset = i_reduced_training_dataset
         self.face_cascade = cv.CascadeClassifier('dataloaders/haarcascade_frontalface_default.xml')
+        self.bin_ages = bin_ages
 
     def preprocess_data(self):
         self.imdb_wiki_train['data'] = self.imdb_wiki_train['data'].astype(np.float)
@@ -93,7 +94,10 @@ class imdb_wiki_dataloader():
                 else:
                     image = cv.resize(image, (224, 224))
                     images.append(cv.cvtColor(image, cv.COLOR_BGR2RGB))
-                ages.append(data["age"][iter])
+                age_raw = data["age"][iter]
+                if self.bin_ages:
+                    age_raw = int(age_raw/10)
+                ages.append(age_raw)
                 filenames.append(image_path)
                 if self.reduced_training_dataset is not None:
                     pbar.update(1)

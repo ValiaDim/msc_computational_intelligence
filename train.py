@@ -24,6 +24,7 @@ class trainer():
         self.svm_type = "classification"
 
         self.dataset = opt.dataset
+        self.bin_ages = opt.bin_ages
         self.train_path = opt.train_path
         self.validation_percentage = opt.validation_percentage
         self.normalize_data = opt.normalize_data
@@ -114,7 +115,7 @@ class trainer():
                                                    i_raw_images=self.load_raw_images)
             self.train_data, self.test_data, self.validation_data, label_names = dataloader.get_cifar_10()
             self.svm_type = "classification"
-        elif self.dataset == "IMDB_WIKI":
+        elif self.dataset == "IMDB_WIKI" and not self.bin_ages:
             dataloader = IMDB_Wiki.imdb_wiki_dataloader(self.train_path, self.validation_percentage,
                                                         i_normalize=self.normalize_data,
                                                         i_reduced_training_dataset=self.reduced_training_dataset,
@@ -122,6 +123,14 @@ class trainer():
                                                         i_feature_type=self.feature_extraction)
             self.train_data, self.test_data, self.validation_data = dataloader.get_imdb_wiki()
             self.svm_type = "regression"
+        elif self.dataset == "IMDB_WIKI" and self.bin_ages:
+            dataloader = IMDB_Wiki.imdb_wiki_dataloader(self.train_path, self.validation_percentage,
+                                                        i_normalize=self.normalize_data,
+                                                        i_reduced_training_dataset=self.reduced_training_dataset,
+                                                        i_raw_images=self.load_raw_images,
+                                                        i_feature_type=self.feature_extraction, bin_ages=True)
+            self.train_data, self.test_data, self.validation_data = dataloader.get_imdb_wiki()
+            self.svm_type = "classification"
 
         else:
             print("Selected dataset: {} is not implemented".format(self.dataset))
