@@ -84,7 +84,7 @@ class trainer():
             acc_test_kpca_lda[kernel] = []
             for gamma in gamma_kpca:
                 for com_num in number_of_components_kpca:
-                    reduced_train_data, reduced_validation_data = PCA.KPCA_fun(self.train_data, self.validation_data,
+                    reduced_train_data, reduced_validation_data = PCA.KPCA_fun(self.train_data.copy(), self.validation_data.copy(),
                                                                          kernel=kernel, gamma=gamma, components=com_num)
                     log_message = "Used dimensionality reduction, via kernel PCA with kernel: {}, \t gamma: {}, " \
                                   "\t number of components: {}\n".format(kernel, gamma, com_num)
@@ -161,11 +161,11 @@ class trainer():
             elif self.classifier_type == "lda":
                 self.perform_lda_grid_search()
             elif self.classifier_type == "kpca_lda":
-                kernel_kpca = ['rbf'] #['poly', 'rbf', 'sigmoid']
-                gamma_kpca = [None] # [None, 0.01, 0.1, 1]
-                number_of_components_kpca = [None,10,20,30,40,50]#[None, 10, 50, 100]
+                kernel_kpca = ['poly', 'rbf', 'sigmoid']
+                gamma_kpca = [None] #[None, 0.01, 0.1, 1]
+                number_of_components_kpca = [None] #[None, 10, 50, 100] # [None,10,20,30,40,50]#
                 solver_lda = ['svd']#['svd', 'lsqr', 'eigen']
-                shrinkage_lda = ['auto']#['auto', 0, 1, 0.01]
+                shrinkage_lda =['auto']#['auto', 0, 1, 0.01]
                 self.perform_kpca_lda_grid_search(kernel_kpca, gamma_kpca, number_of_components_kpca, solver_lda, shrinkage_lda)
 
 
