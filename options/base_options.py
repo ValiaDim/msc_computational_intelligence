@@ -1,5 +1,6 @@
 import argparse
 import os
+import warnings
 from util import util
 
 
@@ -19,5 +20,8 @@ class BaseOptions():
         if not self.initialized:
             self.initialize()
         self.opt = self.parser.parse_args()
+        if self.opt.classifier_type == "kpca_lda" and self.opt.pca_type != "off":
+            warnings.warn("Cannot use kpca_lda as classifier & have a pca type on. Setting pca to off.")
+            self.opt.pca_type = "off"
         self.opt.isTrain = self.isTrain   # train or test
         return self.opt

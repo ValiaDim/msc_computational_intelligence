@@ -69,6 +69,42 @@ class trainer():
         log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
         util.logger(log_message, self.log_folder)
 
+    def perform_kpca_lda_grid_search(self, kernel_kpca, gamma_kpca, number_of_components_kpca, solver_lda, shrinkage_lda):
+        acc_train_kpca_lda = {}
+        acc_test_kpca_lda = {}
+        experiment_number = len(kernel_kpca) * len(gamma_kpca) * len(number_of_components_kpca) * \
+                                                len(solver_lda) * len(shrinkage_lda)
+        if "svd" in solver_lda:
+            experiment_number = len(kernel_kpca) * len(gamma_kpca) * len(number_of_components_kpca) * \
+                                ((len(solver_lda) -1) * len(shrinkage_lda) + 1)
+        progress_bar = tqdm(total=experiment_number, desc='Grid searching for best kpca+lda ')
+        for kernel in kernel_kpca:
+            acc_train_kpca_lda[kernel] = []
+            acc_test_kpca_lda[kernel] = []
+            for gamma in gamma_kpca:
+                for com_num in number_of_components_kpca:
+                    reduced_train_data, reduced_validation_data = PCA.KPCA_fun(self.train_data, self.validation_data,
+                                                                         kernel=kernel, gamma=gamma, components=com_num)
+                    log_message = "Used dimensionality reduction, via kernel PCA with kernel: {}, \t gamma: {}, " \
+                                  "\t number of components: {}\n".format(kernel, gamma, com_num)
+                    util.logger(log_message, self.log_folder, change_classifier=False)
+                    for solver in solver_lda:
+                        if solver == "svd":
+                            acc1, acc2 = LDA.lda_classifier(reduced_train_data, reduced_validation_data, solver)
+                            log_message = ("LDA solver: {}\n".format(solver))
+                            log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
+                            util.logger(log_message, self.log_folder)
+                        else:
+                            for shrinkage in shrinkage_lda:
+                                acc1, acc2 = LDA.lda_classifier(reduced_train_data, reduced_validation_data, solver, shrinkage)
+                                log_message = ("LDA solver: {} \t shrinkage: {} \n".format(solver, shrinkage))
+                                log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
+                                util.logger(log_message, self.log_folder)
+                        acc_train_kpca_lda[kernel].append(acc1)
+                        acc_test_kpca_lda[kernel].append(acc2)
+                        progress_bar.update(1)
+
+
     def train(self):
         # todo should create a wrapper to remove this if else
         if self.dataset == "CIFAR10":
@@ -115,6 +151,13 @@ class trainer():
                 self.perform_svm_grid_search(c_svm, kernel_svm)
             elif self.classifier_type == "lda":
                 self.perform_lda_grid_search()
+            elif self.classifier_type == "kpca_lda":
+                kernel_kpca = ['rbf'] #['poly', 'rbf', 'sigmoid']
+                gamma_kpca = [None] # [None, 0.01, 0.1, 1]
+                number_of_components_kpca = [None,10,20,30,40,50]#[None, 10, 50, 100]
+                solver_lda = ['svd']#['svd', 'lsqr', 'eigen']
+                shrinkage_lda = ['auto']#['auto', 0, 1, 0.01]
+                self.perform_kpca_lda_grid_search(kernel_kpca, gamma_kpca, number_of_components_kpca, solver_lda, shrinkage_lda)
 
 
 if __name__ == "__main__":

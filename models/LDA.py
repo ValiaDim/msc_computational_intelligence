@@ -3,8 +3,8 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import numpy as np
 
 
-def lda_classifier(train, validation, verbose=False):
-    lda = LinearDiscriminantAnalysis()
+def lda_classifier(train, validation, solver="svd", shrinkage=None, verbose=False):
+    lda = LinearDiscriminantAnalysis(solver=solver, shrinkage=shrinkage)
     lda.fit(train['data'], train['labels'])
     # Find the prediction and accuracy on the training set.
     Yhat_svc_linear_train = lda.predict(train['data'])
