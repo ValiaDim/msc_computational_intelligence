@@ -4,7 +4,7 @@ from .base_options import BaseOptions
 class TrainOptions(BaseOptions):
     def initialize(self):
         BaseOptions.initialize(self)
-        classifier_types = ["svm", "lda", "kpca_lda"]
+        classifier_types = ["svm", "lda", "kpca_lda", "nearest_neighbor", "nearest_centroid"]
         pca_methods = ["off", "PCA", "KPCA"]
         feature_extraction_methods = ["off", "HOG", "DEX", "VGG19", "MobileNetV2"]
         feature_layer = ["fc1", "fc2", "cls", "conv", "vgg_layer1", "vgg_layer2", "vgg_layer3", "vgg_layer4",

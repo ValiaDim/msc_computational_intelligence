@@ -4,6 +4,7 @@ import numpy as np
 
 
 def lda_classifier(train, validation, solver="svd", shrinkage=None, verbose=False):
+    print("shape is : {} , {}".format(train['data'].shape[0], train['data'].shape[1]))
     lda = LinearDiscriminantAnalysis(solver=solver, shrinkage=shrinkage)
     lda.fit(train['data'], train['labels'])
     # Find the prediction and accuracy on the training set.

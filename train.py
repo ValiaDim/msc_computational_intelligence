@@ -4,6 +4,7 @@ from dataloaders import feature_extraction
 from models import SVM
 from models import PCA
 from models import LDA
+from models import nearest_neigh
 from options.train_options import TrainOptions
 from util import util
 
@@ -91,13 +92,16 @@ class trainer():
                     util.logger(log_message, self.log_folder, change_classifier=False)
                     for solver in solver_lda:
                         if solver == "svd":
-                            acc1, acc2 = LDA.lda_classifier(reduced_train_data, reduced_validation_data, solver)
+                            print("HEY")
+
+                            acc1, acc2 = LDA.lda_classifier(reduced_train_data.copy(), reduced_validation_data.copy(), solver)
                             log_message = ("LDA solver: {}\n".format(solver))
                             log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
                             util.logger(log_message, self.log_folder)
                         else:
                             for shrinkage in shrinkage_lda:
-                                acc1, acc2 = LDA.lda_classifier(reduced_train_data, reduced_validation_data, solver, shrinkage)
+                                print("HEY2")
+                                acc1, acc2 = LDA.lda_classifier(reduced_train_data.copy(), reduced_validation_data.copy(), solver, shrinkage)
                                 log_message = ("LDA solver: {} \t shrinkage: {} \n".format(solver, shrinkage))
                                 log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
                                 util.logger(log_message, self.log_folder)
@@ -105,6 +109,28 @@ class trainer():
                         acc_test_kpca_lda[kernel].append(acc2)
                         progress_bar.update(1)
 
+    def perform_nearest_neightbor_grid_search(self, k_list):
+        acc_train_nearest_neighbor = []
+        acc_test_nearest_neighbor = []
+        progress_bar = tqdm(total=len(k_list), desc='Grid searching for best svm')
+        for k in k_list:
+            acc1, acc2 = nearest_neigh.nearest_neighbor_classifier(self.train_data, self.validation_data, k)
+            log_message = ("Neareset Neighbor k parameter: {}\n".format(k))
+            log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
+            util.logger(log_message, self.log_folder)
+            acc_train_nearest_neighbor.append(acc1)
+            acc_test_nearest_neighbor.append(acc2)
+            progress_bar.update(1)
+
+        plt.clf()
+        plt.plot(k_list, acc_train_nearest_neighbor, '.-', color='red')
+        plt.plot(k_list, acc_test_nearest_neighbor, '.-', color='orange')
+        plt.xlabel('k')
+        plt.ylabel('Accuracy')
+        plt.title("Plot of accuracy vs k for training and validation data")
+        plt.grid()
+        plot_save_path = os.path.join(self.plot_folder, ("nearest_neighbor.png"))
+        plt.savefig(plot_save_path)
 
     def train(self):
         # todo should create a wrapper to remove this if else
@@ -161,12 +187,20 @@ class trainer():
             elif self.classifier_type == "lda":
                 self.perform_lda_grid_search()
             elif self.classifier_type == "kpca_lda":
-                kernel_kpca = ['poly', 'rbf', 'sigmoid']
-                gamma_kpca = [None] #[None, 0.01, 0.1, 1]
-                number_of_components_kpca = [None] #[None, 10, 50, 100] # [None,10,20,30,40,50]#
-                solver_lda = ['svd']#['svd', 'lsqr', 'eigen']
-                shrinkage_lda =['auto']#['auto', 0, 1, 0.01]
+                kernel_kpca = ['rbf']# ['poly', 'rbf', 'sigmoid']
+                gamma_kpca = [None]# [None, 0.01, 0.1, 1]
+                number_of_components_kpca = [None] #[None,10,20,30,40, 50,60, 70,80,90, 100, 150, 200] # [None,10,20,30,40,50]#
+                solver_lda = ['svd']# ['svd', 'lsqr', 'eigen']
+                shrinkage_lda = ['auto']#['auto', 0, 1, 0.01]
                 self.perform_kpca_lda_grid_search(kernel_kpca, gamma_kpca, number_of_components_kpca, solver_lda, shrinkage_lda)
+            elif self.classifier_type == "nearest_neighbor":
+                k = [1,2,3,4,5,6,7,8,9,10]
+                self.perform_nearest_neightbor_grid_search(k)
+            elif self.classifier_type == "nearest_centroid":
+                acc1, acc2 = nearest_neigh.nearest_centroid_classifier(self.train_data, self.validation_data)
+                log_message = ("Neareset Centroid:")
+                log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
+                util.logger(log_message, self.log_folder)
 
 
 if __name__ == "__main__":
