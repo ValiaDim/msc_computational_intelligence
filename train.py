@@ -1,10 +1,13 @@
 from dataloaders import CIFAR_10
 from dataloaders import IMDB_Wiki
+from dataloaders import MNIST
 from dataloaders import feature_extraction
 from models import SVM
 from models import PCA
 from models import LDA
 from models import nearest_neigh
+from models import spectral_graph_analysis
+from models import clustering
 from options.train_options import TrainOptions
 from util import util
 
@@ -31,7 +34,7 @@ class trainer():
         self.normalize_data = opt.normalize_data
         self.reduced_training_dataset = opt.reduced_training_dataset
         self.feature_extraction = opt.feature_extraction
-        self.pca_type = opt.pca_type
+        self.dimentionality_reduction = opt.dimentionality_reduction
         self.classifier_type = opt.classifier_type
         self.grid_search = opt.grid_search
         self.load_raw_images = (opt.feature_extraction != "off")
@@ -157,6 +160,12 @@ class trainer():
                                                         i_feature_type=self.feature_extraction, bin_ages=True)
             self.train_data, self.test_data, self.validation_data = dataloader.get_imdb_wiki()
             self.svm_type = "classification"
+        elif self.dataset == "MNIST":
+            dataloader = MNIST.MNIST_dataloader(i_normalize=self.normalize_data,
+                                                        i_reduced_training_dataset=self.reduced_training_dataset,
+                                                        i_raw_images=self.load_raw_images)
+            self.train_data, self.test_data, self.validation_data, label_names = dataloader.get_MNIST()
+            self.svm_type = "classification"
 
         else:
             print("Selected dataset: {} is not implemented".format(self.dataset))
@@ -168,15 +177,21 @@ class trainer():
                                                                                 feature_layer=self.feature_layer)
             self.train_data["data"] = np.stack(train_feature, axis=0)
             self.validation_data["data"] = np.stack(validation_feature, axis=0)
-        if self.pca_type == "PCA":
+        if self.dimentionality_reduction == "PCA":
             self.train_data, self.validation_data = PCA.PCA_fun(self.train_data, self.validation_data)
-        elif self.pca_type == "KPCA":
+        elif self.dimentionality_reduction == "KPCA":
             log_message = "Used dimensionality reduction, via kernel PCA with kernel {}\n".format("rbf")
             util.logger(log_message, self.log_folder, change_classifier=False)
             self.train_data, self.validation_data = PCA.KPCA_fun(self.train_data, self.validation_data)
+        elif self.dimentionality_reduction == "Isomap" or self.dimentionality_reduction == "LLE" or self.dimentionality_reduction == "TSNE":
+            log_message = "Used dimensionality reduction, method: {}\n".format(self.dimentionality_reduction)
+            util.logger(log_message, self.log_folder, change_classifier=False)
+            self.train_data = spectral_graph_analysis.spectral_embedding(self.train_data,
+                                                                         method=self.dimentionality_reduction,
+                                                                         plot_folder=self.plot_folder)
         else:
-            if self.pca_type != "off":
-                print("Selected dimensionality reduction: {} is not implemented".format(self.pca_type))
+            if self.dimentionality_reduction != "off":
+                print("Selected dimensionality reduction: {} is not implemented".format(self.dimentionality_reduction))
                 raise NotImplementedError
                 return
         if self.grid_search:
@@ -201,6 +216,10 @@ class trainer():
                 log_message = ("Neareset Centroid:")
                 log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
                 util.logger(log_message, self.log_folder)
+        else:
+            # for now only clustering is used in a non-grid search way
+            clustering.cluster(train=self.train_data, type=self.classifier_type, number_of_clusters=10)
+
 
 
 if __name__ == "__main__":

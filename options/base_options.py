@@ -1,5 +1,5 @@
 import argparse
-import os
+import sys
 import warnings
 from util import util
 
@@ -32,5 +32,7 @@ class BaseOptions():
         if self.opt.classifier_type == "kpca_lda" and not self.opt.bin_ages and self.opt.dataset == "IMDB_WIKI":
             warnings.warn("KPCA lda can only work with classification. Turning bin_ages flag on!")
             self.opt.bin_ages = True
+        if self.opt.train_path is None and self.opt.dataset != "MNIST":
+            sys.exit('You need to provide root directory for training! Exiting.')
         self.opt.isTrain = self.isTrain   # train or test
         return self.opt

@@ -5,7 +5,7 @@ import numpy as np
 
 
 class MNIST_dataloader():
-    def __init__(self, i_percentage_validation, i_normalize=True, i_reduced_training_dataset=None,
+    def __init__(self, i_percentage_validation=0.2, i_normalize=True, i_reduced_training_dataset=None,
                  i_raw_images=False):
         self.MNIST_train = {}
         self.MNIST_test = {}
