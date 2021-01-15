@@ -1,6 +1,7 @@
 from sklearn.manifold import Isomap
 from sklearn.manifold import TSNE
 from sklearn.manifold import LocallyLinearEmbedding
+from sklearn.manifold import SpectralEmbedding
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,11 +12,17 @@ import os
 def spectral_embedding(train, method, plot_folder, dimensions=2):
     projected_train = train.copy()
     if method == "Isomap":
-        embedding = Isomap(n_components=dimensions)
+        embedding = Isomap(n_neighbors=6, n_components=dimensions)
     elif method == "TSNE":
         embedding = TSNE(n_components=dimensions)
     elif method == "LLE":
-        embedding = LocallyLinearEmbedding(n_components=dimensions)
+        embedding = LocallyLinearEmbedding(n_neighbors=6, n_components=dimensions)
+    elif method == "modified_LLE":
+        embedding = LocallyLinearEmbedding(n_neighbors=6, n_components=dimensions, method="modified")
+    elif method == "hessian_LLE":
+        embedding = LocallyLinearEmbedding(n_neighbors=6, n_components=dimensions, method="hessian")
+    elif method == "laplacian_eigenmaps":
+        embedding = SpectralEmbedding(n_components=dimensions)
     projected_train['data'] = embedding.fit_transform(train['data'])
     classes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
     colors = np.array(list(islice(cycle(['#377eb8', '#ff7f00', '#4daf4a',
