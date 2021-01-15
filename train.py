@@ -186,7 +186,7 @@ class trainer():
         elif self.dimentionality_reduction == "Isomap" or self.dimentionality_reduction == "LLE" or self.dimentionality_reduction == "TSNE":
             log_message = "Used dimensionality reduction, method: {}\n".format(self.dimentionality_reduction)
             util.logger(log_message, self.log_folder, change_classifier=False)
-            self.train_data = spectral_graph_analysis.spectral_embedding(self.train_data,
+            self.train_data, self.validation_data = spectral_graph_analysis.spectral_embedding(self.train_data, self.validation_data,
                                                                          method=self.dimentionality_reduction,
                                                                          plot_folder=self.plot_folder)
         else:
@@ -218,7 +218,7 @@ class trainer():
                 util.logger(log_message, self.log_folder)
         else:
             # for now only clustering is used in a non-grid search way
-            clustering.cluster(train=self.train_data, type=self.classifier_type, number_of_clusters=10)
+            clustering.cluster(train=self.train_data, val=self.validation_data, type=self.classifier_type, number_of_clusters=10)
 
 
 
