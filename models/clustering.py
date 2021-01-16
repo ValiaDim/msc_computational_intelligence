@@ -23,8 +23,10 @@ def cluster(train, val, type, number_of_clusters, plot_folder):
     accuracies = {}
     random_array = np.random.randint(9, size=train["labels"].shape)
     centroids = find_centroids(number_of_clusters, train, clustering_model.labels_)
-    visualize_clustering(train, clustering_model.labels_, "spectral clustering", plot_folder, centroids)
     test_classifications = cluster_test(val, centroids)
+    visualize_clustering(train, clustering_model.labels_, type+"_training", plot_folder, centroids)
+    visualize_clustering(val, test_classifications, type+"_validation", plot_folder, centroids)
+
     accuracies["random_score"] = homogeneity_score(train["labels"], random_array)
     accuracies["v_measure_score"] = v_measure_score(train["labels"], clustering_model.labels_)
     accuracies["homogeneity_score"] = homogeneity_score(train["labels"], clustering_model.labels_)
@@ -35,7 +37,7 @@ def cluster(train, val, type, number_of_clusters, plot_folder):
     accuracies["homogeneity_score_test"] = homogeneity_score(val["labels"], test_classifications)
     accuracies["completeness_score_test"] = completeness_score(val["labels"], test_classifications)
     accuracies["silhouette_score_test"] = silhouette_score(val["data"], test_classifications)
-
+    return accuracies
 
 def cluster_test(val, centroids):
     classifications = []

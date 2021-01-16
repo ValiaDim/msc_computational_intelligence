@@ -18,7 +18,7 @@ import os
 
 
 class trainer():
-    def __init__(self,opt, training_folder):
+    def __init__(self, opt, training_folder):
         self.log_folder = os.path.join(training_folder, 'logs')
         self.checkpoint_folder = os.path.join(training_folder, 'checkpoints')
         self.plot_folder = os.path.join(training_folder, 'plots')
@@ -74,22 +74,25 @@ class trainer():
         log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
         util.logger(log_message, self.log_folder)
 
-    def perform_kpca_lda_grid_search(self, kernel_kpca, gamma_kpca, number_of_components_kpca, solver_lda, shrinkage_lda):
+    def perform_kpca_lda_grid_search(self, kernel_kpca, gamma_kpca, number_of_components_kpca, solver_lda,
+                                     shrinkage_lda):
         acc_train_kpca_lda = {}
         acc_test_kpca_lda = {}
         experiment_number = len(kernel_kpca) * len(gamma_kpca) * len(number_of_components_kpca) * \
-                                                len(solver_lda) * len(shrinkage_lda)
+                            len(solver_lda) * len(shrinkage_lda)
         if "svd" in solver_lda:
             experiment_number = len(kernel_kpca) * len(gamma_kpca) * len(number_of_components_kpca) * \
-                                ((len(solver_lda) -1) * len(shrinkage_lda) + 1)
+                                ((len(solver_lda) - 1) * len(shrinkage_lda) + 1)
         progress_bar = tqdm(total=experiment_number, desc='Grid searching for best kpca+lda ')
         for kernel in kernel_kpca:
             acc_train_kpca_lda[kernel] = []
             acc_test_kpca_lda[kernel] = []
             for gamma in gamma_kpca:
                 for com_num in number_of_components_kpca:
-                    reduced_train_data, reduced_validation_data = PCA.KPCA_fun(self.train_data.copy(), self.validation_data.copy(),
-                                                                         kernel=kernel, gamma=gamma, components=com_num)
+                    reduced_train_data, reduced_validation_data = PCA.KPCA_fun(self.train_data.copy(),
+                                                                               self.validation_data.copy(),
+                                                                               kernel=kernel, gamma=gamma,
+                                                                               components=com_num)
                     log_message = "Used dimensionality reduction, via kernel PCA with kernel: {}, \t gamma: {}, " \
                                   "\t number of components: {}\n".format(kernel, gamma, com_num)
                     util.logger(log_message, self.log_folder, change_classifier=False)
@@ -97,16 +100,20 @@ class trainer():
                         if solver == "svd":
                             print("HEY")
 
-                            acc1, acc2 = LDA.lda_classifier(reduced_train_data.copy(), reduced_validation_data.copy(), solver)
+                            acc1, acc2 = LDA.lda_classifier(reduced_train_data.copy(), reduced_validation_data.copy(),
+                                                            solver)
                             log_message = ("LDA solver: {}\n".format(solver))
-                            log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
+                            log_message = log_message + (
+                                "Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
                             util.logger(log_message, self.log_folder)
                         else:
                             for shrinkage in shrinkage_lda:
                                 print("HEY2")
-                                acc1, acc2 = LDA.lda_classifier(reduced_train_data.copy(), reduced_validation_data.copy(), solver, shrinkage)
+                                acc1, acc2 = LDA.lda_classifier(reduced_train_data.copy(),
+                                                                reduced_validation_data.copy(), solver, shrinkage)
                                 log_message = ("LDA solver: {} \t shrinkage: {} \n".format(solver, shrinkage))
-                                log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
+                                log_message = log_message + (
+                                    "Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
                                 util.logger(log_message, self.log_folder)
                         acc_train_kpca_lda[kernel].append(acc1)
                         acc_test_kpca_lda[kernel].append(acc2)
@@ -162,8 +169,8 @@ class trainer():
             self.svm_type = "classification"
         elif self.dataset == "MNIST":
             dataloader = MNIST.MNIST_dataloader(i_normalize=self.normalize_data,
-                                                        i_reduced_training_dataset=self.reduced_training_dataset,
-                                                        i_raw_images=self.load_raw_images)
+                                                i_reduced_training_dataset=self.reduced_training_dataset,
+                                                i_raw_images=self.load_raw_images)
             self.train_data, self.test_data, self.validation_data, label_names = dataloader.get_MNIST()
             self.svm_type = "classification"
 
@@ -186,9 +193,10 @@ class trainer():
         elif self.dimentionality_reduction == "Isomap" or self.dimentionality_reduction == "LLE" or self.dimentionality_reduction == "TSNE":
             log_message = "Used dimensionality reduction, method: {}\n".format(self.dimentionality_reduction)
             util.logger(log_message, self.log_folder, change_classifier=False)
-            self.train_data, self.validation_data = spectral_graph_analysis.spectral_embedding(self.train_data, self.validation_data,
-                                                                         method=self.dimentionality_reduction,
-                                                                         plot_folder=self.plot_folder)
+            self.train_data, self.validation_data = spectral_graph_analysis.spectral_embedding(self.train_data,
+                                                                                               self.validation_data,
+                                                                                               method=self.dimentionality_reduction,
+                                                                                               plot_folder=self.plot_folder)
         else:
             if self.dimentionality_reduction != "off":
                 print("Selected dimensionality reduction: {} is not implemented".format(self.dimentionality_reduction))
@@ -202,14 +210,16 @@ class trainer():
             elif self.classifier_type == "lda":
                 self.perform_lda_grid_search()
             elif self.classifier_type == "kpca_lda":
-                kernel_kpca = ['rbf']# ['poly', 'rbf', 'sigmoid']
-                gamma_kpca = [None]# [None, 0.01, 0.1, 1]
-                number_of_components_kpca = [None] #[None,10,20,30,40, 50,60, 70,80,90, 100, 150, 200] # [None,10,20,30,40,50]#
-                solver_lda = ['svd']# ['svd', 'lsqr', 'eigen']
-                shrinkage_lda = ['auto']#['auto', 0, 1, 0.01]
-                self.perform_kpca_lda_grid_search(kernel_kpca, gamma_kpca, number_of_components_kpca, solver_lda, shrinkage_lda)
+                kernel_kpca = ['rbf']  # ['poly', 'rbf', 'sigmoid']
+                gamma_kpca = [None]  # [None, 0.01, 0.1, 1]
+                number_of_components_kpca = [
+                    None]  # [None,10,20,30,40, 50,60, 70,80,90, 100, 150, 200] # [None,10,20,30,40,50]#
+                solver_lda = ['svd']  # ['svd', 'lsqr', 'eigen']
+                shrinkage_lda = ['auto']  # ['auto', 0, 1, 0.01]
+                self.perform_kpca_lda_grid_search(kernel_kpca, gamma_kpca, number_of_components_kpca, solver_lda,
+                                                  shrinkage_lda)
             elif self.classifier_type == "nearest_neighbor":
-                k = [1,2,3,4,5,6,7,8,9,10]
+                k = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                 self.perform_nearest_neightbor_grid_search(k)
             elif self.classifier_type == "nearest_centroid":
                 acc1, acc2 = nearest_neigh.nearest_centroid_classifier(self.train_data, self.validation_data)
@@ -218,8 +228,13 @@ class trainer():
                 util.logger(log_message, self.log_folder)
         else:
             # for now only clustering is used in a non-grid search way
-            clustering.cluster(train=self.train_data, val=self.validation_data, type=self.classifier_type,
-                               number_of_clusters=10, plot_folder = self.log_folder)
+            accuracies = clustering.cluster(train=self.train_data, val=self.validation_data, type=self.classifier_type,
+                                            number_of_clusters=10, plot_folder=self.plot_folder)
+            log_message = "Dimensionality reduction: {},\t Clustering: {}\n".format(self.dimentionality_reduction,
+                                                                                    self.classifier_type)
+            for key in accuracies.keys():
+                log_message = log_message + "Metric: {} : {}\n".format(key, accuracies[key])
+            util.logger(log_message, self.log_folder)
 
 
 if __name__ == "__main__":
