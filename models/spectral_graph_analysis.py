@@ -23,6 +23,6 @@ def spectral_embedding(train, val, method, plot_folder, dimensions=2):
         embedding = SpectralEmbedding(n_components=dimensions).fit(train['data'])
     projected_train['data'] = embedding.transform(train['data'])
     projected_val['data'] = embedding.transform(val['data'])
-    visualize(projected_train, method, plot_folder)
+    # visualize(projected_train, method, plot_folder)
 
     return projected_train, projected_val

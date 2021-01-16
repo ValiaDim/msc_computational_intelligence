@@ -7,7 +7,9 @@ from sklearn.neighbors import NearestNeighbors
 import numpy as np
 import math
 
-def cluster(train, val, type, number_of_clusters):
+from util.visualizer import visualize
+
+def cluster(train, val, type, number_of_clusters, plot_folder):
     # todo this should be a class
     if type == "spectral_clustering":
         clustering_model = SpectralClustering(n_clusters=number_of_clusters, assign_labels="discretize", random_state=0).fit(train["data"])
@@ -19,6 +21,7 @@ def cluster(train, val, type, number_of_clusters):
     accuracies = {}
     random_array = np.random.randint(9, size=train["labels"].shape)
     centroids = find_centroids(number_of_clusters, train, clustering_model.labels_)
+    visualize(train, "spectral clustering", plot_folder, centroids)
     test_classifications = cluster_test(val, centroids)
     accuracies["random_score"] = homogeneity_score(train["labels"], random_array)
     accuracies["homogeneity_score"] = homogeneity_score(train["labels"], clustering_model.labels_)

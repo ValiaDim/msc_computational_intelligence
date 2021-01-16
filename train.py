@@ -218,7 +218,8 @@ class trainer():
                 util.logger(log_message, self.log_folder)
         else:
             # for now only clustering is used in a non-grid search way
-            clustering.cluster(train=self.train_data, val=self.validation_data, type=self.classifier_type, number_of_clusters=10)
+            clustering.cluster(train=self.train_data, val=self.validation_data, type=self.classifier_type,
+                               number_of_clusters=10, plot_folder = self.log_folder)
 
 
 
