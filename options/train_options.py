@@ -5,7 +5,7 @@ class TrainOptions(BaseOptions):
     def initialize(self):
         BaseOptions.initialize(self)
         # classifier types contain both classification and clustering methods
-        classifier_types = ["svm", "lda", "kpca_lda", "nearest_neighbor", "nearest_centroid", "kmeans", "spectral_clustering"]
+        classifier_types = ["svm", "lda", "kpca_lda", "nearest_neighbor", "nearest_centroid", "kmeans", "spectral_clustering", "kmeans_spectral"]
         dimentionality_reduction_methods = ["off", "PCA", "KPCA", "Isomap", "LLE", "modified_LLE", "hessian_LLE", "TSNE", "laplacian_eigenmaps"]
         feature_extraction_methods = ["off", "HOG", "DEX", "VGG19", "MobileNetV2"]
         feature_layer = ["fc1", "fc2", "cls", "conv", "vgg_layer1", "vgg_layer2", "vgg_layer3", "vgg_layer4",

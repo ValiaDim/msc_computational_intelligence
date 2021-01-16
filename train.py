@@ -227,14 +227,27 @@ class trainer():
                 log_message = log_message + ("Training accuracy: {},\t Validation accuracy: {}\n".format(acc1, acc2))
                 util.logger(log_message, self.log_folder)
         else:
-            # for now only clustering is used in a non-grid search way
-            accuracies = clustering.cluster(train=self.train_data, val=self.validation_data, type=self.classifier_type,
-                                            number_of_clusters=10, plot_folder=self.plot_folder)
-            log_message = "Dimensionality reduction: {},\t Clustering: {}\n".format(self.dimentionality_reduction,
-                                                                                    self.classifier_type)
-            for key in accuracies.keys():
-                log_message = log_message + "Metric: {} : {}\n".format(key, accuracies[key])
-            util.logger(log_message, self.log_folder)
+            if self.classifier_type == "kmeans" or self.classifier_type=="spectral_clustering":
+                # for now only clustering is used in a non-grid search way
+                accuracies = clustering.cluster(train=self.train_data, val=self.validation_data, type=self.classifier_type,
+                                                number_of_clusters=10, plot_folder=self.plot_folder)
+                log_message = "Dimensionality reduction: {},\t Clustering: {}\n".format(self.dimentionality_reduction,
+                                                                                        self.classifier_type)
+                for key in accuracies.keys():
+                    log_message = log_message + "Metric: {} : {}\n".format(key, accuracies[key])
+                util.logger(log_message, self.log_folder)
+            elif self.classifier_type == "kmeans_spectral":
+                types = ["kmeans", "spectral_clustering"]
+                for type in types:
+                    accuracies = clustering.cluster(train=self.train_data, val=self.validation_data, type=type,
+                                                    number_of_clusters=10, plot_folder=self.plot_folder)
+                    log_message = "Dimensionality reduction: {},\t Clustering: {}\n".format(self.dimentionality_reduction,
+                                                                                            type)
+                    for key in accuracies.keys():
+                        log_message = log_message + "Metric: {} : {}\n".format(key, accuracies[key])
+                    util.logger(log_message, self.log_folder)
+
+
 
 
 if __name__ == "__main__":
