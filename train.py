@@ -222,7 +222,6 @@ class trainer():
                                number_of_clusters=10, plot_folder = self.log_folder)
 
 
-
 if __name__ == "__main__":
     opt = TrainOptions().parse()
     training_folder = util.create_folders_for_training(opt)

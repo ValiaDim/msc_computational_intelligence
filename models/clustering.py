@@ -2,12 +2,14 @@ from sklearn.cluster import KMeans
 from sklearn.cluster import SpectralClustering
 from sklearn.metrics.cluster import homogeneity_score
 from sklearn.metrics.cluster import completeness_score
-from sklearn.neighbors import NearestNeighbors
+from sklearn.metrics.cluster import v_measure_score
+from sklearn.metrics.cluster import silhouette_score
 
 import numpy as np
 import math
 
-from util.visualizer import visualize
+from util.visualizer import *
+
 
 def cluster(train, val, type, number_of_clusters, plot_folder):
     # todo this should be a class
@@ -21,14 +23,18 @@ def cluster(train, val, type, number_of_clusters, plot_folder):
     accuracies = {}
     random_array = np.random.randint(9, size=train["labels"].shape)
     centroids = find_centroids(number_of_clusters, train, clustering_model.labels_)
-    visualize(train, "spectral clustering", plot_folder, centroids)
+    visualize_clustering(train, clustering_model.labels_, "spectral clustering", plot_folder, centroids)
     test_classifications = cluster_test(val, centroids)
     accuracies["random_score"] = homogeneity_score(train["labels"], random_array)
+    accuracies["v_measure_score"] = v_measure_score(train["labels"], clustering_model.labels_)
     accuracies["homogeneity_score"] = homogeneity_score(train["labels"], clustering_model.labels_)
     accuracies["completeness_score"] = completeness_score(train["labels"], clustering_model.labels_)
+    accuracies["silhouette_score"] = silhouette_score(train["data"], clustering_model.labels_)
+
+    accuracies["v_measure_score_test"] = v_measure_score(val["labels"], test_classifications)
     accuracies["homogeneity_score_test"] = homogeneity_score(val["labels"], test_classifications)
     accuracies["completeness_score_test"] = completeness_score(val["labels"], test_classifications)
-    print("hey")
+    accuracies["silhouette_score_test"] = silhouette_score(val["data"], test_classifications)
 
 
 def cluster_test(val, centroids):
