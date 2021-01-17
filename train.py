@@ -25,6 +25,7 @@ class trainer():
         self.train_data = {}
         self.test_data = {}
         self.validation_data = {}
+        self.classes = []
         self.svm_type = "classification"
 
         self.dataset = opt.dataset
@@ -35,6 +36,7 @@ class trainer():
         self.reduced_training_dataset = opt.reduced_training_dataset
         self.feature_extraction = opt.feature_extraction
         self.dimentionality_reduction = opt.dimentionality_reduction
+        self.number_of_neighbors = opt.number_of_neighbors
         self.classifier_type = opt.classifier_type
         self.grid_search = opt.grid_search
         self.load_raw_images = (opt.feature_extraction != "off")
@@ -149,7 +151,7 @@ class trainer():
                                                    i_normalize=self.normalize_data,
                                                    i_reduced_training_dataset=self.reduced_training_dataset,
                                                    i_raw_images=self.load_raw_images)
-            self.train_data, self.test_data, self.validation_data, label_names = dataloader.get_cifar_10()
+            self.train_data, self.test_data, self.validation_data, self.classes = dataloader.get_cifar_10()
             self.svm_type = "classification"
         elif self.dataset == "IMDB_WIKI" and not self.bin_ages:
             dataloader = IMDB_Wiki.imdb_wiki_dataloader(self.train_path, self.validation_percentage,
@@ -171,7 +173,7 @@ class trainer():
             dataloader = MNIST.MNIST_dataloader(i_normalize=self.normalize_data,
                                                 i_reduced_training_dataset=self.reduced_training_dataset,
                                                 i_raw_images=self.load_raw_images)
-            self.train_data, self.test_data, self.validation_data, label_names = dataloader.get_MNIST()
+            self.train_data, self.test_data, self.validation_data, self.classes = dataloader.get_MNIST()
             self.svm_type = "classification"
 
         else:
@@ -190,13 +192,17 @@ class trainer():
             log_message = "Used dimensionality reduction, via kernel PCA with kernel {}\n".format("rbf")
             util.logger(log_message, self.log_folder, change_classifier=False)
             self.train_data, self.validation_data = PCA.KPCA_fun(self.train_data, self.validation_data)
-        elif self.dimentionality_reduction == "Isomap" or self.dimentionality_reduction == "LLE" or self.dimentionality_reduction == "TSNE":
+        elif self.dimentionality_reduction == "Isomap" or self.dimentionality_reduction == "LLE" \
+                or self.dimentionality_reduction == "TSNE" or self.dimentionality_reduction == "modified_LLE"\
+                or self.dimentionality_reduction == "hessian_LLE" or self.dimentionality_reduction == "laplacian_eigenmaps":
             log_message = "Used dimensionality reduction, method: {}\n".format(self.dimentionality_reduction)
             util.logger(log_message, self.log_folder, change_classifier=False)
-            self.train_data, self.validation_data = spectral_graph_analysis.spectral_embedding(self.train_data,
-                                                                                               self.validation_data,
+            self.train_data, self.validation_data = spectral_graph_analysis.spectral_embedding(train=self.train_data,
+                                                                                               val=self.validation_data,
+                                                                                               classes = self.classes,
                                                                                                method=self.dimentionality_reduction,
-                                                                                               plot_folder=self.plot_folder)
+                                                                                               plot_folder=self.plot_folder,
+                                                                                               neighbors=self.number_of_neighbors)
         else:
             if self.dimentionality_reduction != "off":
                 print("Selected dimensionality reduction: {} is not implemented".format(self.dimentionality_reduction))
@@ -230,7 +236,7 @@ class trainer():
             if self.classifier_type == "kmeans" or self.classifier_type=="spectral_clustering":
                 # for now only clustering is used in a non-grid search way
                 accuracies = clustering.cluster(train=self.train_data, val=self.validation_data, type=self.classifier_type,
-                                                number_of_clusters=10, plot_folder=self.plot_folder)
+                                                number_of_clusters=10, plot_folder=self.plot_folder, classes = self.classes)
                 log_message = "Dimensionality reduction: {},\t Clustering: {}\n".format(self.dimentionality_reduction,
                                                                                         self.classifier_type)
                 for key in accuracies.keys():
@@ -240,7 +246,7 @@ class trainer():
                 types = ["kmeans", "spectral_clustering"]
                 for type in types:
                     accuracies = clustering.cluster(train=self.train_data, val=self.validation_data, type=type,
-                                                    number_of_clusters=10, plot_folder=self.plot_folder)
+                                                    number_of_clusters=10, plot_folder=self.plot_folder, classes=self.classes)
                     log_message = "Dimensionality reduction: {},\t Clustering: {}\n".format(self.dimentionality_reduction,
                                                                                             type)
                     for key in accuracies.keys():

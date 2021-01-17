@@ -35,4 +35,6 @@ class TrainOptions(BaseOptions):
                                  help='Select from where to take the features: ' + ' | '.join(feature_layer))
         self.parser.add_argument('--max_number_of_iter', default=100000, help="Add the max number of iterations for "
                                                                               "the svm. Default is: 100000")
+        self.parser.add_argument('--number_of_neighbors', default=6, type=int, help="Number of neighbors in graph embedding "
+                                                                          "techniques for dimensionality reduction")
         self.isTrain = True
